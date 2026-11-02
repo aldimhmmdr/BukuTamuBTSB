@@ -1,0 +1,734 @@
+@page
+@model NotifikasiModel
+
+@{
+    Layout = "_AdminLayout";
+
+    ViewData["Title"] = "Notifikasi";
+    ViewData["PageTitle"] = "Notifikasi";
+    ViewData["PageDescription"] =
+        "Pemberitahuan kunjungan tamu terbaru";
+}
+
+
+<section class="notification-page">
+
+
+    <!-- =====================================================
+         JUDUL
+    ====================================================== -->
+
+    <div class="notification-heading">
+
+        <h2>
+            Notifikasi Kunjungan
+        </h2>
+
+        <p>
+            Daftar pemberitahuan kunjungan tamu.
+        </p>
+
+    </div>
+
+
+    <!-- =====================================================
+         PANEL NOTIFIKASI
+    ====================================================== -->
+
+    <div class="notification-panel">
+
+
+        <!-- =================================================
+             TAB
+        ================================================== -->
+
+        <div class="notification-tabs">
+
+
+            <!-- SEMUA -->
+
+            <a href="/Notifikasi?filter=semua"
+               class="notification-tab @(Model.Filter == "semua" ? "active" : "")">
+
+                <span>
+                    Semua
+                </span>
+
+                <span class="tab-count">
+                    @Model.TotalSemua
+                </span>
+
+            </a>
+
+
+            <!-- BELUM DIBACA -->
+
+            <a href="/Notifikasi?filter=belum"
+               class="notification-tab @(Model.Filter == "belum" ? "active" : "")">
+
+                <span>
+                    Belum Dibaca
+                </span>
+
+                <span class="tab-count tab-count-blue">
+                    @Model.TotalBelumDibaca
+                </span>
+
+            </a>
+
+
+            <!-- SUDAH DIBACA -->
+
+            <a href="/Notifikasi?filter=sudah"
+               class="notification-tab @(Model.Filter == "sudah" ? "active" : "")">
+
+                <span>
+                    Sudah Dibaca
+                </span>
+
+                @if (Model.TotalSudahDibaca > 0)
+                {
+                    <span class="tab-count tab-count-gray">
+                        @Model.TotalSudahDibaca
+                    </span>
+                }
+
+            </a>
+
+        </div>
+
+
+        <!-- =================================================
+             ISI
+        ================================================== -->
+        @if (Model.Notifications.Count == 0)
+        {
+            <div class="notification-empty">
+
+                <div class="notification-empty-icon">
+
+                    <svg viewBox="0 0 24 24">
+
+                        <path d="M20 6 9 17l-5-5" />
+
+                    </svg>
+
+                </div>
+
+
+                <h3>
+                    Tidak ada notifikasi
+                </h3>
+
+
+                <p>
+                    Belum ada notifikasi pada kategori ini.
+                </p>
+
+            </div>
+        }
+        else
+        {
+
+            <div class="notification-items">
+
+
+                @foreach (var notification in Model.Notifications)
+                {
+
+                    <a asp-page-handler="Buka"
+                       asp-route-id="@notification.Id"
+                       class="notification-item @(notification.Dibaca ? "read" : "unread")">
+
+
+                        <!-- =================================================
+                             ICON
+                        ================================================== -->
+
+                        <div class="notification-avatar">
+
+                            <svg viewBox="0 0 24 24">
+
+                                <circle cx="12"
+                                        cy="8"
+                                        r="3" />
+
+                                <path d="M5 20c.8-3.5 3.1-5 7-5s6.2 1.5 7 5" />
+
+                            </svg>
+
+                        </div>
+
+
+                        <!-- =================================================
+                             INFORMASI
+                        ================================================== -->
+
+                        <div class="notification-body">
+
+
+                            <div class="notification-title-row">
+
+                                <span class="notification-title">
+
+                                    @notification.Judul
+
+                                </span>
+
+                            </div>
+
+
+                            <div class="notification-description">
+
+                                @notification.Nama
+
+                                <span class="notification-separator">
+                                    -
+                                </span>
+
+                                @notification.Keperluan
+
+                            </div>
+
+
+                            @if (!string.IsNullOrWhiteSpace(notification.Instansi))
+                            {
+                                <div class="notification-institution">
+
+                                    @notification.Instansi
+
+                                </div>
+                            }
+
+                        </div>
+
+
+                        <!-- =================================================
+                             WAKTU
+                        ================================================== -->
+
+                        <div class="notification-meta">
+
+                            <span class="notification-time"
+                                  data-time="@notification.CreatedAt.ToString("o")">
+
+                                @notification.CreatedAt.ToString("HH:mm")
+
+                            </span>
+
+
+                            @if (!notification.Dibaca)
+                            {
+                                <span class="notification-unread-dot"></span>
+                            }
+
+                        </div>
+
+                    </a>
+
+                }
+
+            </div>
+
+        }
+
+    </div>
+
+</section>
+
+
+<style>
+
+    /* =====================================================
+           PAGE
+        ====================================================== */
+
+    .notification-page {
+        width: 100%;
+    }
+
+
+    /* =====================================================
+           HEADING
+        ====================================================== */
+
+    .notification-heading {
+        margin-bottom: 20px;
+    }
+
+        .notification-heading h2 {
+            margin: 0;
+            color: #123f73;
+            font-size: 20px;
+            font-weight: 700;
+            line-height: 1.3;
+        }
+
+        .notification-heading p {
+            margin: 6px 0 0;
+            color: #72839a;
+            font-size: 13px;
+        }
+
+
+    /* =====================================================
+           PANEL
+        ====================================================== */
+
+    .notification-panel {
+        background: #ffffff;
+        border: 1px solid #dce5ef;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(20, 50, 80, .035);
+    }
+
+
+    /* =====================================================
+           TABS
+        ====================================================== */
+
+    .notification-tabs {
+        height: 54px;
+        display: flex;
+        align-items: stretch;
+        padding: 0 18px;
+        border-bottom: 1px solid #e5ebf2;
+        background: #ffffff;
+    }
+
+
+    .notification-tab {
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        padding: 0 18px;
+        color: #718198;
+        font-size: 12px;
+        font-weight: 600;
+        white-space: nowrap;
+        transition: color .2s ease, background .2s ease;
+    }
+
+        .notification-tab:hover {
+            color: #126bb3;
+        }
+
+        .notification-tab.active {
+            color: #126bb3;
+        }
+
+
+            .notification-tab.active::after {
+                content: "";
+                position: absolute;
+                left: 16px;
+                right: 16px;
+                bottom: -1px;
+                height: 2px;
+                background: #1784d4;
+                border-radius: 2px 2px 0 0;
+            }
+
+
+    /* =====================================================
+           COUNT
+        ====================================================== */
+
+    .tab-count {
+        min-width: 17px;
+        height: 17px;
+        padding: 0 4px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background: #ef4444;
+        color: white;
+        font-size: 9px;
+        font-weight: 700;
+    }
+
+
+    .tab-count-blue {
+        background: #1685d5;
+    }
+
+
+    .tab-count-gray {
+        background: #9aa8b8;
+    }
+
+
+    /* =====================================================
+           LIST
+        ====================================================== */
+
+    .notification-items {
+        display: flex;
+        flex-direction: column;
+    }
+
+
+    /* =====================================================
+           ITEM
+        ====================================================== */
+
+    .notification-item {
+        min-height: 82px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 14px 18px;
+        background: #ffffff;
+        border-bottom: 1px solid #edf1f5;
+        transition: background .2s ease;
+    }
+
+
+        .notification-item:last-child {
+            border-bottom: none;
+        }
+
+
+        .notification-item:hover {
+            background: #f8fbff;
+        }
+
+
+        /* =====================================================
+           READ
+        ====================================================== */
+
+        .notification-item.read {
+            background: #ffffff;
+        }
+
+            .notification-item.read .notification-title {
+                color: #516477;
+                font-weight: 600;
+            }
+
+            .notification-item.read .notification-avatar {
+                opacity: .78;
+            }
+
+
+    /* =====================================================
+           AVATAR
+        ====================================================== */
+
+    .notification-avatar {
+        width: 43px;
+        height: 43px;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 9px;
+        background: #edf3fc;
+        color: #43347d;
+    }
+
+
+        .notification-avatar svg {
+            width: 19px;
+            height: 19px;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 1.8px;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+
+    /* =====================================================
+           BODY
+        ====================================================== */
+
+    .notification-body {
+        min-width: 0;
+        flex: 1;
+    }
+
+
+    .notification-title-row {
+        display: flex;
+        align-items: center;
+        margin-bottom: 4px;
+    }
+
+
+    .notification-title {
+        color: #123f73;
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 1.4;
+    }
+
+
+    /* =====================================================
+           DESCRIPTION
+        ====================================================== */
+
+    .notification-description {
+        color: #4e6075;
+        font-size: 11px;
+        line-height: 1.45;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+
+    .notification-separator {
+        margin: 0 4px;
+        color: #a4b0bd;
+    }
+
+
+    /* =====================================================
+           INSTANSI
+        ====================================================== */
+
+    .notification-institution {
+        margin-top: 3px;
+        color: #8b99aa;
+        font-size: 10px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+
+    /* =====================================================
+           META
+        ====================================================== */
+
+    .notification-meta {
+        min-width: 105px;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 10px;
+        flex-shrink: 0;
+    }
+
+
+    .notification-time {
+        color: #75869a;
+        font-size: 10px;
+        white-space: nowrap;
+    }
+
+
+    /* =====================================================
+           UNREAD DOT
+        ====================================================== */
+
+    .notification-unread-dot {
+        width: 7px;
+        height: 7px;
+        flex-shrink: 0;
+        border-radius: 50%;
+        background: #1685d5;
+    }
+
+
+    /* =====================================================
+           EMPTY
+        ====================================================== */
+
+    .notification-empty {
+        min-height: 300px;
+        padding: 45px 30px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+    }
+
+
+    .notification-empty-icon {
+        width: 58px;
+        height: 58px;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background: #eef4fb;
+        color: #1475bd;
+    }
+
+
+        .notification-empty-icon svg {
+            width: 28px;
+            height: 28px;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 1.8px;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+
+    .notification-empty h3 {
+        margin: 0;
+        color: #123f73;
+        font-size: 16px;
+        font-weight: 700;
+    }
+
+
+    .notification-empty p {
+        margin: 7px 0 0;
+        color: #72839a;
+        font-size: 12px;
+    }
+
+
+    /* =====================================================
+           RESPONSIVE
+        ====================================================== */
+
+    @@media (max-width: 700px) {
+
+        .notification-heading h2 {
+            font-size: 18px;
+        }
+
+        .notification-tabs {
+            padding: 0 5px;
+            overflow-x: auto;
+        }
+
+        .notification-tab {
+            padding: 0 13px;
+        }
+
+        .notification-item {
+            gap: 10px;
+            padding: 13px;
+        }
+
+        .notification-avatar {
+            width: 39px;
+            height: 39px;
+        }
+
+        .notification-meta {
+            min-width: auto;
+        }
+
+        .notification-time {
+            display: none;
+        }
+    }
+
+</style>
+
+
+<script>
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        function() {
+
+            /*
+             * Mengubah waktu menjadi format relatif.
+             */
+
+            const timeElements =
+                document.querySelectorAll(
+                    ".notification-time"
+                );
+
+
+            timeElements.forEach(function(element) {
+
+                const rawTime =
+                    element.getAttribute("data-time");
+
+
+                if (!rawTime) {
+                    return;
+                }
+
+
+                const date =
+                    new Date(rawTime);
+
+
+                if (isNaN(date.getTime())) {
+                    return;
+                }
+
+
+                const now =
+                    new Date();
+
+
+                const difference =
+                    Math.floor(
+                        (
+                            now.getTime()
+                            -
+                            date.getTime()
+                        ) / 1000
+                    );
+
+
+                if (difference < 60) {
+
+                    element.textContent =
+                        "Baru saja";
+
+                }
+
+                else if (difference < 3600) {
+
+                    const minutes =
+                        Math.floor(
+                            difference / 60
+                        );
+
+                    element.textContent =
+                        minutes +
+                        " menit yang lalu";
+
+                }
+
+                else if (difference < 86400) {
+
+                    const hours =
+                        Math.floor(
+                            difference / 3600
+                        );
+
+                    element.textContent =
+                        hours +
+                        " jam yang lalu";
+
+                }
+
+                else {
+
+                    const days =
+                        Math.floor(
+                            difference / 86400
+                        );
+
+                    element.textContent =
+                        days +
+                        " hari yang lalu";
+                }
+
+            });
+
+        }
+    );
+
+</script>

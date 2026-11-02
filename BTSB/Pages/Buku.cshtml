@@ -1,0 +1,593 @@
+@page
+@model BTSB.Pages.BukuModel
+@{
+    ViewData["Title"] = "Isi Buku Tamu";
+}
+
+<style>
+    /* =====================================================
+           POPUP BERHASIL
+           ===================================================== */
+
+    .success-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        background: rgba(15, 35, 60, 0.55);
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
+        animation: successOverlayIn .2s ease-out;
+    }
+
+    .success-modal {
+        width: min(440px, 100%);
+        padding: 34px 30px 28px;
+        text-align: center;
+        background: #ffffff;
+        border: 1px solid #e1e8f0;
+        border-radius: 16px;
+        box-shadow: 0 20px 60px rgba(20, 50, 80, .22);
+        animation: successModalIn .25s ease-out;
+    }
+
+    .success-icon {
+        width: 68px;
+        height: 68px;
+        margin: 0 auto 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background: #eaf8f1;
+        color: #18a36d;
+        border: 6px solid #f4fcf8;
+        font-size: 34px;
+        font-weight: 700;
+        line-height: 1;
+    }
+
+    .success-modal h2 {
+        margin: 0;
+        color: #173b6d;
+        font-size: 21px;
+        font-weight: 700;
+    }
+
+    .success-modal p {
+        margin: 12px 0 24px;
+        color: #6d7e91;
+        font-size: 13px;
+        line-height: 1.7;
+    }
+
+    .success-button {
+        min-width: 120px;
+        padding: 10px 22px;
+        border: 0;
+        border-radius: 8px;
+        background: #2384d8;
+        color: #ffffff;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background .18s ease, transform .18s ease;
+    }
+
+        .success-button:hover {
+            background: #1268b4;
+            transform: translateY(-1px);
+        }
+
+    @@keyframes successOverlayIn {
+        from {
+            opacity: 0;
+        }
+
+        to {
+            opacity: 1;
+        }
+    }
+
+    @@keyframes successModalIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px) scale(.98);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+</style>
+
+<div class="buku-tamu-page">
+
+    <div class="buku-tamu-container">
+
+        <div class="buku-tamu-card">
+
+            <div class="form-header">
+                <h1>Buku Tamu Digital</h1>
+                <p>Silakan isi data kunjungan Anda dengan lengkap</p>
+            </div>
+            <!-- FORM -->
+            <div class="buku-card">
+
+                <form method="post">
+
+                    <!-- =========================================
+                     BAGIAN 1 - DATA PENGUNJUNG
+                     ========================================= -->
+
+                    <div class="form-section">
+
+                        <div class="section-title">
+
+                            <span class="section-number">
+                                1
+                            </span>
+
+                            <span>
+                                Data Pengunjung
+                            </span>
+
+                        </div>
+
+
+                        <div class="form-grid">
+
+                            <!-- Nama -->
+                            <div class="form-group">
+
+                                <label asp-for="Nama">
+                                    Nama Lengkap
+                                    <span class="required">*</span>
+                                </label>
+
+                                <input asp-for="Nama"
+                                       class="form-control"
+                                       placeholder="Masukkan nama lengkap"
+                                       required />
+
+                                <span asp-validation-for="Nama"
+                                      class="validation-message">
+                                </span>
+
+                            </div>
+
+
+                            <!-- Nomor Telepon -->
+                            <div class="form-group">
+
+                                <label asp-for="Telepon">
+                                    Nomor Telepon
+                                    <span class="required">*</span>
+                                </label>
+
+                                <input asp-for="Telepon"
+                                       class="form-control"
+                                       type="tel"
+                                       inputmode="tel"
+                                       autocomplete="tel"
+                                       placeholder="Contoh: +62 812-3456-7890"
+                                       maxlength="25"
+                                       pattern="[+]?[0-9()\s.-]{7,24}"
+                                       title="Masukkan nomor telepon dengan kode negara jika berasal dari luar negeri. Contoh: +62 812-3456-7890"
+                                       required />
+
+                                <span asp-validation-for="Telepon"
+                                      class="validation-message">
+                                </span>
+
+                            </div>
+
+
+                            <!-- Instansi -->
+                            <div class="form-group">
+
+                                <label asp-for="Instansi">
+                                    Instansi / Asal
+                                    <span class="required">*</span>
+                                </label>
+
+                                <input asp-for="Instansi"
+                                       class="form-control"
+                                       placeholder="Masukkan instansi atau asal"
+                                       required />
+
+                                <span asp-validation-for="Instansi"
+                                      class="validation-message">
+                                </span>
+
+                            </div>
+
+
+                            <!-- Email -->
+                            <div class="form-group">
+
+                                <label asp-for="Email">
+                                    Email
+                                </label>
+
+                                <input asp-for="Email"
+                                       class="form-control"
+                                       type="email"
+                                       placeholder="nama@email.com" />
+
+                                <span asp-validation-for="Email"
+                                      class="validation-message">
+                                </span>
+
+                            </div>
+
+
+                            <!-- Alamat -->
+                            <div class="form-group form-full">
+
+                                <label asp-for="Alamat">
+                                    Alamat
+                                </label>
+
+                                <textarea asp-for="Alamat"
+                                          class="form-control"
+                                          rows="3"
+                                          placeholder="Masukkan alamat lengkap"></textarea>
+
+                                <span asp-validation-for="Alamat"
+                                      class="validation-message">
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- =========================================
+                     BAGIAN 2 - INFORMASI KUNJUNGAN
+                     ========================================= -->
+
+                    <div class="form-section">
+
+                        <div class="section-title">
+
+                            <span class="section-number">
+                                2
+                            </span>
+
+                            <span>
+                                Informasi Kunjungan
+                            </span>
+
+                        </div>
+
+
+                        <div class="form-grid">
+
+                            <!-- Keperluan -->
+                            <div class="form-group">
+
+                                <label asp-for="Keperluan">
+                                    Keperluan Kunjungan
+                                    <span class="required">*</span>
+                                </label>
+
+                                <select asp-for="Keperluan"
+                                        class="form-control"
+                                        id="keperluan"
+                                        required>
+
+                                    <option value="">
+                                        Pilih keperluan
+                                    </option>
+
+                                    <option value="Advis Teknis">
+                                        Advis Teknis
+                                    </option>
+
+                                    <option value="Pengujian Termal">
+                                        Pengujian Termal
+                                    </option>
+
+                                    <option value="Pengujian Ketahanan Api">
+                                        Pengujian Ketahanan Api
+                                    </option>
+
+                                    <option value="Pengujian Akustik">
+                                        Pengujian Akustik
+                                    </option>
+
+                                    <option value="Bimbingan Teknis">
+                                        Bimbingan Teknis
+                                    </option>
+
+                                    <option value="Lainnya">
+                                        Lainnya
+                                    </option>
+
+                                </select>
+
+                                <span asp-validation-for="Keperluan"
+                                      class="validation-message">
+                                </span>
+
+                            </div>
+
+
+                            <!-- Detail Keperluan -->
+                            <div class="form-group"
+                                 id="detailKeperluanGroup"
+                                 style="display: none;">
+
+                                <label asp-for="DetailKeperluan">
+                                    Detail Keperluan
+                                    <span class="required">*</span>
+                                </label>
+
+                                <textarea asp-for="DetailKeperluan"
+                                          class="form-control"
+                                          id="detailKeperluan"
+                                          rows="3"
+                                          placeholder="Tuliskan detail keperluan Anda"></textarea>
+
+                                <span asp-validation-for="DetailKeperluan"
+                                      class="validation-message">
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- =========================================
+                     TOMBOL
+                     ========================================= -->
+
+                    <div class="form-actions">
+
+                        <button type="reset"
+                                class="btn-reset"
+                                id="btnReset">
+
+                            Reset
+
+                        </button>
+
+
+                        <button type="submit"
+                                class="btn-submit">
+
+                            <span>➤</span>
+
+                            Kirim Data Kunjungan
+
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+
+            <!-- INFORMASI BAWAH -->
+
+            <div class="buku-info">
+
+                <span class="info-icon">
+                    ℹ
+                </span>
+
+                <p>
+                    Pastikan data yang Anda masukkan sudah benar sebelum
+                    mengirimkan formulir kunjungan.
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<!-- =============================================================
+     POPUP BERHASIL
+     ============================================================= -->
+@if (Request.Query["berhasil"] == "true")
+{
+    <div class="success-overlay" id="successPopup">
+
+        <div class="success-modal">
+
+            <div class="success-icon">
+                ✓
+            </div>
+
+            <h2>
+                Data Berhasil Disimpan
+            </h2>
+
+            <p>
+                Data kunjungan Anda telah berhasil dikirim.
+                <br />
+                Silakan menunggu arahan dari petugas.
+            </p>
+
+            <button type="button"
+                    class="success-button"
+                    id="closeSuccessPopup">
+                Tutup
+            </button>
+
+        </div>
+
+    </div>
+}
+
+@section Scripts {
+
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+
+        document.addEventListener("DOMContentLoaded", function () {
+
+            // Nomor telepon internasional: izinkan angka, +, spasi,
+            // tanda kurung, titik, dan tanda hubung.
+            const teleponInput = document.getElementById("Telepon");
+
+            if (teleponInput) {
+                teleponInput.addEventListener("input", function () {
+                    let value = this.value.replace(/[^0-9+()\s.-]/g, "");
+                    value = value.replace(/(?!^)\+/g, "");
+                    this.value = value.slice(0, 25);
+                });
+            }
+
+            const keperluan =
+                document.getElementById("keperluan");
+
+            const detailGroup =
+                document.getElementById("detailKeperluanGroup");
+
+            const detailInput =
+                document.getElementById("detailKeperluan");
+
+            const btnReset =
+                document.getElementById("btnReset");
+
+
+            function updateDetailKeperluan() {
+
+                if (keperluan.value === "Lainnya") {
+
+                    detailGroup.style.display = "block";
+
+                    detailInput.setAttribute("required", "required");
+
+                }
+                else {
+
+                    detailGroup.style.display = "none";
+
+                    detailInput.removeAttribute("required");
+
+                    detailInput.value = "";
+
+                }
+
+            }
+
+
+            // Saat pilihan keperluan berubah
+            keperluan.addEventListener(
+                "change",
+                updateDetailKeperluan
+            );
+
+
+            // Reset form
+            btnReset.addEventListener("click", function () {
+
+                setTimeout(function () {
+
+                    detailGroup.style.display = "none";
+
+                    detailInput.removeAttribute("required");
+
+                    detailInput.value = "";
+
+                }, 10);
+
+            });
+
+
+            // Jalankan saat halaman pertama kali dibuka
+            updateDetailKeperluan();
+
+
+            // =====================================================
+            // POPUP BERHASIL
+            // =====================================================
+
+            const successPopup =
+                document.getElementById("successPopup");
+
+            const closeSuccessPopup =
+                document.getElementById("closeSuccessPopup");
+
+
+            function closeSuccessMessage() {
+
+                if (successPopup) {
+                    successPopup.remove();
+                }
+
+                // Hapus ?berhasil=true agar popup tidak muncul
+                // lagi ketika halaman direfresh.
+                const url =
+                    new URL(window.location.href);
+
+                url.searchParams.delete("berhasil");
+
+                window.history.replaceState(
+                    {},
+                    document.title,
+                    url.pathname + url.search
+                );
+            }
+
+
+            if (closeSuccessPopup) {
+
+                closeSuccessPopup.addEventListener(
+                    "click",
+                    closeSuccessMessage
+                );
+
+            }
+
+
+            if (successPopup) {
+
+                // Klik area gelap untuk menutup popup.
+                successPopup.addEventListener(
+                    "click",
+                    function (event) {
+
+                        if (event.target === successPopup) {
+                            closeSuccessMessage();
+                        }
+
+                    }
+                );
+
+                // Tombol Escape untuk menutup popup.
+                document.addEventListener(
+                    "keydown",
+                    function (event) {
+
+                        if (event.key === "Escape") {
+                            closeSuccessMessage();
+                        }
+
+                    }
+                );
+
+            }
+
+        });
+
+    </script>
+}

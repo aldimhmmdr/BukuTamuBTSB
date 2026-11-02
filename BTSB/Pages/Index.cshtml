@@ -1,0 +1,402 @@
+@page
+@model IndexModel
+
+@{
+    ViewData["Title"] = "Beranda";
+}
+
+<style>
+    .home-page {
+        width: 100%;
+        overflow: hidden;
+        background: #f7f9fc;
+    }
+
+    .hero {
+        min-height: 500px;
+        padding: 72px 7.5% 70px;
+        display: flex;
+        align-items: center;
+        position: relative;
+        isolation: isolate;
+        background-image: url('/images/bg.jpg');
+        background-size: cover;
+        background-position: center 72%;
+        background-repeat: no-repeat;
+    }
+
+    .hero::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background:
+            linear-gradient(
+                90deg,
+                rgba(255, 255, 255, .96) 0%,
+                rgba(255, 255, 255, .88) 27%,
+                rgba(255, 255, 255, .56) 46%,
+                rgba(255, 255, 255, .10) 72%,
+                rgba(255, 255, 255, .02) 100%
+            );
+        z-index: -1;
+    }
+
+    .hero::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+            180deg,
+            rgba(18, 59, 109, .03),
+            rgba(18, 59, 109, .08)
+        );
+        z-index: -1;
+        pointer-events: none;
+    }
+
+    .hero-content {
+        width: 100%;
+        max-width: 650px;
+        position: relative;
+        z-index: 2;
+    }
+
+    .welcome-label {
+        display: inline-flex;
+        align-items: center;
+        padding: 7px 14px;
+        margin-bottom: 17px;
+        border-radius: 6px;
+        background: rgba(255,255,255,.94);
+        border: 1px solid rgba(23,105,170,.12);
+        color: #1769aa;
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 1px;
+        box-shadow: 0 5px 16px rgba(15,23,42,.07);
+    }
+
+    .welcome-label::after {
+        content: "";
+        width: 30px;
+        height: 3px;
+        margin-left: 12px;
+        border-radius: 999px;
+        background: #f2c230;
+    }
+
+    .hero h1 {
+        margin: 0;
+        color: #123b6d;
+        font-size: clamp(42px, 4.5vw, 58px);
+        line-height: 1.06;
+        font-weight: 800;
+        letter-spacing: -1.5px;
+    }
+
+    .hero-description {
+        max-width: 585px;
+        margin: 22px 0 29px;
+        color: #334155;
+        font-size: 15px;
+        line-height: 1.75;
+    }
+
+    .hero .nav-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 46px;
+        padding: 0 21px;
+        border-radius: 8px;
+        background: #1769aa;
+        color: #fff !important;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 700;
+        box-shadow: 0 9px 22px rgba(23,105,170,.24);
+        transition: .2s ease;
+    }
+
+    .hero .nav-button:hover {
+        background: #12578e;
+        transform: translateY(-2px);
+        box-shadow: 0 12px 25px rgba(23,105,170,.30);
+    }
+
+    .service-section {
+        padding: 64px 7.5% 70px;
+        background: #f7f9fc;
+        border-top: 1px solid #e9eef5;
+    }
+
+    .section-heading {
+        max-width: 760px;
+        margin: 0 auto 35px;
+        text-align: center;
+    }
+
+    .section-kicker {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        color: #1769aa;
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 1.5px;
+    }
+
+    .section-kicker::before,
+    .section-kicker::after {
+        content: "";
+        width: 28px;
+        height: 3px;
+        border-radius: 999px;
+        background: #f2c230;
+    }
+
+    .section-heading h2 {
+        margin: 10px 0 9px;
+        color: #123b6d;
+        font-size: clamp(30px, 3vw, 38px);
+        line-height: 1.2;
+        font-weight: 800;
+        letter-spacing: -.6px;
+    }
+
+    .section-heading p {
+        margin: 0 auto;
+        max-width: 620px;
+        color: #64748b;
+        font-size: 14px;
+        line-height: 1.7;
+    }
+
+    .service-grid {
+        width: 100%;
+        max-width: 1200px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 18px;
+    }
+
+    .service-card {
+        min-height: 174px;
+        padding: 25px 23px;
+        display: grid;
+        grid-template-columns: 76px 1fr;
+        gap: 17px;
+        align-items: center;
+        background: #fff;
+        border: 1px solid #e4eaf1;
+        border-radius: 15px;
+        box-shadow: 0 5px 18px rgba(15,23,42,.045);
+        transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+    }
+
+    .service-card:hover {
+        transform: translateY(-4px);
+        border-color: rgba(23,105,170,.18);
+        box-shadow: 0 13px 28px rgba(15,23,42,.09);
+    }
+
+    .service-icon {
+        width: 68px;
+        height: 68px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #edf6fd;
+        border: 1px solid #d9eaf7;
+        border-radius: 14px;
+    }
+
+    .service-icon img {
+        width: 43px;
+        height: 43px;
+        display: block;
+        object-fit: contain;
+    }
+
+    .service-card h3 {
+        margin: 0 0 8px;
+        color: #123b6d;
+        font-size: 17px;
+        line-height: 1.3;
+        font-weight: 800;
+    }
+
+    .service-card p {
+        margin: 0;
+        color: #64748b;
+        font-size: 13px;
+        line-height: 1.65;
+    }
+
+    @@media (max-width: 1100px) {
+        .service-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .hero {
+            background-position: center 70%;
+        }
+    }
+
+    @@media (max-width: 768px) {
+        .hero {
+            min-height: 560px;
+            padding: 65px 25px 70px;
+            background-position: 62% 72%;
+        }
+
+        .hero::before {
+            background:
+                linear-gradient(
+                    90deg,
+                    rgba(255,255,255,.96) 0%,
+                    rgba(255,255,255,.82) 52%,
+                    rgba(255,255,255,.30) 100%
+                );
+        }
+
+        .hero h1 {
+            font-size: 40px;
+        }
+
+        .service-section {
+            padding: 55px 20px 60px;
+        }
+    }
+
+    @@media (max-width: 560px) {
+        .hero {
+            min-height: 570px;
+            padding: 55px 20px 65px;
+            background-position: 66% 72%;
+        }
+
+        .hero h1 {
+            font-size: 35px;
+        }
+
+        .hero-description {
+            font-size: 14px;
+        }
+
+        .service-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .service-card {
+            grid-template-columns: 68px 1fr;
+            min-height: 145px;
+        }
+    }
+
+    @@media (max-width: 390px) {
+        .hero h1 {
+            font-size: 32px;
+        }
+
+        .service-card {
+            grid-template-columns: 1fr;
+            text-align: center;
+            justify-items: center;
+        }
+    }
+</style>
+
+<div class="home-page">
+
+    <section class="hero">
+        <div class="hero-content">
+
+            <div class="welcome-label">
+                SELAMAT DATANG DI
+            </div>
+
+            <h1>
+                Balai Teknik<br />
+                Sains Bangunan
+            </h1>
+
+            <p class="hero-description">
+                Silakan melakukan pencatatan kunjungan melalui
+                Buku Tamu Digital Balai Teknik Sains Bangunan
+                untuk mendukung pelayanan yang tertib dan terdokumentasi.
+            </p>
+
+            <a asp-page="/Buku" class="nav-button">
+                Isi Buku Tamu
+            </a>
+
+        </div>
+    </section>
+
+    <section class="service-section">
+
+        <div class="section-heading">
+
+            <div class="section-kicker">
+                LAYANAN BTSB
+            </div>
+
+            <h2>
+                Layanan dan Kunjungan
+            </h2>
+
+            <p>
+                Informasi layanan yang berkaitan dengan kegiatan
+                Balai Teknik Sains Bangunan.
+            </p>
+
+        </div>
+
+        <div class="service-grid">
+
+            <div class="service-card">
+                <div class="service-icon">
+                    <img src="~/images/icons/pengujian.svg" alt="Pengujian" />
+                </div>
+                <div>
+                    <h3>Pengujian</h3>
+                    <p>Layanan pengujian terkait teknologi dan fisika bangunan.</p>
+                </div>
+            </div>
+
+            <div class="service-card">
+                <div class="service-icon">
+                    <img src="~/images/icons/advis-teknis.svg" alt="Advis Teknis" />
+                </div>
+                <div>
+                    <h3>Advis Teknis</h3>
+                    <p>Layanan advis dan konsultasi teknis bangunan gedung.</p>
+                </div>
+            </div>
+
+            <div class="service-card">
+                <div class="service-icon">
+                    <img src="~/images/icons/bimbingan-teknis.svg" alt="Bimbingan Teknis" />
+                </div>
+                <div>
+                    <h3>Bimbingan Teknis</h3>
+                    <p>Kegiatan bimbingan teknis mengenai teknologi dan bangunan gedung.</p>
+                </div>
+            </div>
+
+            <div class="service-card">
+                <div class="service-icon">
+                    <img src="~/images/icons/konsultasi-kunjungan.svg" alt="Konsultasi dan Kunjungan" />
+                </div>
+                <div>
+                    <h3>Konsultasi &amp; Kunjungan</h3>
+                    <p>Koordinasi, konsultasi, dan kunjungan kedinasan.</p>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+</div>

@@ -1,0 +1,1275 @@
+@using Microsoft.AspNetCore.Http
+@using Microsoft.EntityFrameworkCore
+@using BTSB.Data
+
+@inject AppDbContext Db
+
+@{
+    var currentPage =
+        ViewContext.RouteData.Values["page"]?.ToString() ?? "";
+
+    var namaUser =
+        Context.Session.GetString("Nama") ?? "Pengguna";
+
+    var roleUser =
+        Context.Session.GetString("Role") ?? "Petugas";
+
+    var usernameUser =
+        Context.Session.GetString("Username") ?? "";
+
+    var unreadNotificationCount =
+        await Db.VisitNotifications.CountAsync(x => !x.Dibaca);
+
+    var pageTitle =
+        ViewData["Title"]?.ToString() ?? "Dashboard";
+
+    var pageDescription =
+        ViewData["PageDescription"]?.ToString()
+        ?? "Monitoring kunjungan Balai Teknik Sains Bangunan";
+}
+
+
+<!DOCTYPE html>
+
+<html lang="id">
+
+<head>
+
+    <meta charset="utf-8" />
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0" />
+
+    <title>
+        @pageTitle - BTSB
+    </title>
+
+
+    <link rel="icon"
+          href="~/images/pu.jpg" />
+
+
+    <style>
+
+        /* =====================================================
+           RESET
+        ====================================================== */
+
+        * {
+            box-sizing: border-box;
+        }
+
+
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+
+            min-height: 100%;
+
+            font-family:
+                "Segoe UI",
+                Arial,
+                sans-serif;
+
+            color: #173b6d;
+
+            background: #f4f7fb;
+        }
+
+
+        body {
+            overflow-x: hidden;
+        }
+
+
+        a {
+            text-decoration: none;
+        }
+
+
+        button,
+        input,
+        select,
+        textarea {
+            font-family: inherit;
+        }
+
+
+        /* =====================================================
+           PAGE
+        ====================================================== */
+
+        .admin-page {
+            min-height: 100vh;
+
+            display: flex;
+
+            background: #f4f7fb;
+        }
+
+
+        /* =====================================================
+           SIDEBAR
+        ====================================================== */
+
+        .admin-sidebar {
+            position: fixed;
+
+            top: 0;
+            left: 0;
+            bottom: 0;
+
+            z-index: 100;
+
+            width: 245px;
+
+            display: flex;
+            flex-direction: column;
+
+            background:
+                linear-gradient(
+                    180deg,
+                    #174f86 0%,
+                    #155087 100%
+                );
+
+            color: white;
+
+            box-shadow:
+                2px 0 12px rgba(17, 54, 91, .08);
+        }
+
+
+        /* =====================================================
+           BRAND
+        ====================================================== */
+
+        .admin-brand {
+            height: 70px;
+            padding: 0px 20px;
+            display: flex;
+            align-items: center;
+            gap: 13px;
+            flex-shrink: 0;
+            border-bottom: 1px solid rgba(255,255,255,.10);
+        }
+
+        .admin-brand-logo {
+            width: 43px;
+            height: 43px;
+
+            flex-shrink: 0;
+
+            overflow: hidden;
+
+            border-radius: 9px;
+
+            background: white;
+
+            box-shadow:
+                0 3px 8px rgba(0,0,0,.10);
+        }
+
+
+        .admin-brand-logo img {
+            width: 100%;
+            height: 100%;
+
+            display: block;
+
+            object-fit: cover;
+        }
+
+
+        .admin-brand-text {
+            padding-top: 1px;
+
+            display: flex;
+            flex-direction: column;
+        }
+
+
+        .admin-brand-text strong {
+            color: white;
+
+            font-size: 16px;
+
+            font-weight: 700;
+
+            line-height: 1.3;
+        }
+
+
+        .admin-brand-text span {
+            margin-top: 2px;
+
+            color: rgba(255,255,255,.72);
+
+            font-size: 9px;
+
+            line-height: 1.4;
+        }
+
+
+        /* =====================================================
+           MENU TITLE
+        ====================================================== */
+
+        .admin-menu-title {
+            padding: 20px 21px 10px;
+            color: rgba(255,255,255,.58);
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: .5px;
+            text-transform: uppercase;
+        }
+
+
+        /* =====================================================
+           MENU
+        ====================================================== */
+
+        .admin-menu {
+            padding: 0 14px;
+        }
+
+
+        .admin-menu-item {
+            position: relative;
+
+            width: 100%;
+            min-height: 46px;
+
+            margin-bottom: 4px;
+
+            padding: 0 14px;
+
+            display: flex;
+            align-items: center;
+
+            gap: 12px;
+
+            border-radius: 8px;
+
+            color: rgba(255,255,255,.84);
+
+            font-size: 11px;
+
+            font-weight: 600;
+
+            transition:
+                background .18s ease,
+                color .18s ease,
+                transform .18s ease;
+        }
+
+
+        .admin-menu-item:hover {
+            background: rgba(255,255,255,.09);
+
+            color: white;
+
+            transform: translateX(1px);
+        }
+
+
+        .admin-menu-item.active {
+            background: #2588d8;
+
+            color: white;
+
+            box-shadow:
+                0 4px 10px rgba(0,0,0,.10);
+        }
+
+
+        .admin-menu-icon {
+            width: 18px;
+            height: 18px;
+
+            flex-shrink: 0;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+
+        .admin-menu-icon svg {
+            width: 17px;
+            height: 17px;
+
+            display: block;
+
+            stroke: currentColor;
+
+            fill: none;
+
+            stroke-width: 1.7px;
+
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+
+        .admin-menu-label {
+            flex: 1;
+        }
+
+
+        /* =====================================================
+           NOTIFICATION BADGE
+        ====================================================== */
+
+        .admin-badge {
+            min-width: 19px;
+            height: 19px;
+
+            padding: 0 5px;
+
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 999px;
+
+            background: #ef4444;
+
+            color: white;
+
+            font-size: 9px;
+
+            font-weight: 700;
+
+            line-height: 1;
+        }
+
+
+        /* =====================================================
+           SIDEBAR BOTTOM
+        ====================================================== */
+
+        .admin-sidebar-bottom {
+            margin-top: auto;
+
+            padding: 14px;
+
+            border-top:
+                1px solid rgba(255,255,255,.10);
+        }
+
+
+        .admin-logout {
+            min-height: 46px;
+
+            padding: 0 14px;
+
+            display: flex;
+            align-items: center;
+
+            gap: 12px;
+
+            border-radius: 8px;
+
+            color: rgba(255,255,255,.85);
+
+            font-size: 11px;
+
+            font-weight: 600;
+
+            transition:
+                background .18s ease,
+                color .18s ease;
+        }
+
+
+        .admin-logout:hover {
+            background: rgba(239,68,68,.14);
+
+            color: #ffffff;
+        }
+
+
+        .admin-logout-icon {
+            width: 18px;
+            height: 18px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+
+        .admin-logout-icon svg {
+            width: 17px;
+            height: 17px;
+
+            stroke: currentColor;
+
+            fill: none;
+
+            stroke-width: 1.7px;
+
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+
+        /* =====================================================
+           MAIN
+        ====================================================== */
+
+        .admin-main {
+            width: calc(100% - 245px);
+
+            min-height: 100vh;
+
+            margin-left: 245px;
+        }
+
+
+        /* =====================================================
+           HEADER
+        ====================================================== */
+
+        .admin-header {
+            height: 87px;
+
+            padding: 0 30px;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            background: #ffffff;
+
+            border-bottom:
+                1px solid #e2e9f1;
+
+            box-shadow:
+                0 1px 5px rgba(30,60,90,.025);
+        }
+
+
+        .admin-header-title {
+            min-width: 0;
+        }
+
+
+        .admin-header-title h1 {
+            margin: 0;
+
+            color: #123f73;
+
+            font-size: 22px;
+
+            font-weight: 700;
+
+            line-height: 1.25;
+        }
+
+
+        .admin-header-title p {
+            margin: 5px 0 0;
+
+            color: #8190a2;
+
+            font-size: 10px;
+
+            line-height: 1.4;
+        }
+
+
+        /* =====================================================
+           HEADER PROFILE
+        ====================================================== */
+
+        .admin-header-right {
+            display: flex;
+            align-items: center;
+
+            gap: 14px;
+        }
+
+
+        /* =====================================================
+           NOTIFICATION
+        ====================================================== */
+
+        .admin-notification {
+            position: relative;
+
+            width: 38px;
+            height: 38px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 9px;
+
+            color: #6e7e90;
+
+            transition:
+                background .18s ease,
+                color .18s ease;
+        }
+
+
+        .admin-notification:hover {
+            background: #f1f6fb;
+
+            color: #1679c9;
+        }
+
+
+        .admin-notification svg {
+            width: 19px;
+            height: 19px;
+
+            stroke: currentColor;
+
+            fill: none;
+
+            stroke-width: 1.7px;
+
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+
+        .admin-notification-badge {
+            position: absolute;
+
+            top: 1px;
+            right: 0;
+
+            min-width: 17px;
+            height: 17px;
+
+            padding: 0 4px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 999px;
+
+            background: #ef4444;
+
+            border: 2px solid white;
+
+            color: white;
+
+            font-size: 8px;
+
+            font-weight: 700;
+
+            line-height: 1;
+        }
+
+
+        /* =====================================================
+           USER
+        ====================================================== */
+
+        .admin-user {
+            min-height: 48px;
+
+            padding-left: 13px;
+
+            display: flex;
+            align-items: center;
+
+            gap: 10px;
+
+            border-left:
+                1px solid #e7edf3;
+        }
+
+
+        .admin-user-avatar {
+            width: 38px;
+            height: 38px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 50%;
+
+            background: #eef4fb;
+
+            color: #164f87;
+        }
+
+
+        .admin-user-avatar svg {
+            width: 18px;
+            height: 18px;
+
+            stroke: currentColor;
+
+            fill: none;
+
+            stroke-width: 1.7px;
+
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+
+        .admin-user-info {
+            min-width: 90px;
+
+            display: flex;
+            flex-direction: column;
+        }
+
+
+        .admin-user-info strong {
+            max-width: 175px;
+
+            overflow: hidden;
+
+            color: #173b6d;
+
+            font-size: 11px;
+
+            font-weight: 700;
+
+            line-height: 1.3;
+
+            white-space: nowrap;
+
+            text-overflow: ellipsis;
+        }
+
+
+        .admin-user-info span {
+            margin-top: 2px;
+
+            color: #8795a5;
+
+            font-size: 9px;
+
+            line-height: 1.3;
+        }
+
+
+        /* =====================================================
+           CONTENT
+        ====================================================== */
+
+        .admin-content {
+            min-height: calc(100vh - 87px);
+
+            padding: 26px 30px 35px;
+
+            background: #f4f7fb;
+        }
+
+
+        /* =====================================================
+           RESPONSIVE
+        ====================================================== */
+
+        @@media (max-width: 900px) {
+
+            .admin-sidebar {
+                width: 76px;
+            }
+
+
+            .admin-main {
+                width: calc(100% - 76px);
+
+                margin-left: 76px;
+            }
+
+
+            .admin-brand {
+                height: 100px;
+
+                padding: 20px 0;
+
+                justify-content: center;
+            }
+
+
+            .admin-brand-text {
+                display: none;
+            }
+
+
+            .admin-menu-title {
+                display: none;
+            }
+
+
+            .admin-menu {
+                padding: 10px;
+            }
+
+
+            .admin-menu-item {
+                justify-content: center;
+
+                padding: 0;
+
+                gap: 0;
+            }
+
+
+            .admin-menu-label {
+                display: none;
+            }
+
+
+            .admin-badge {
+                position: absolute;
+
+                top: 3px;
+                right: 3px;
+
+                min-width: 16px;
+                height: 16px;
+
+                font-size: 7px;
+            }
+
+
+            .admin-sidebar-bottom {
+                padding: 10px;
+            }
+
+
+            .admin-logout {
+                justify-content: center;
+
+                padding: 0;
+            }
+
+
+            .admin-logout span {
+                display: none;
+            }
+
+
+            .admin-header {
+                padding: 0 20px;
+            }
+
+
+            .admin-content {
+                padding: 20px;
+            }
+
+        }
+
+
+        @@media (max-width: 600px) {
+
+            .admin-header-title h1 {
+                font-size: 18px;
+            }
+
+
+            .admin-header-title p {
+                display: none;
+            }
+
+
+            .admin-user-info {
+                display: none;
+            }
+
+
+            .admin-user {
+                padding-left: 5px;
+
+                border-left: none;
+            }
+
+
+            .admin-content {
+                padding: 15px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+    <div class="admin-page">
+
+
+        <!-- =================================================
+             SIDEBAR
+        ================================================== -->
+
+        <aside class="admin-sidebar">
+
+
+            <!-- BRAND -->
+
+            <div class="admin-brand">
+
+                <div class="admin-brand-logo">
+
+                    <img src="~/images/pu.jpg"
+                         alt="Logo BTSB" />
+
+                </div>
+
+
+                <div class="admin-brand-text">
+
+                    <strong>BTSB</strong>
+
+                    <span>
+                        Buku Tamu Digital
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <!-- MENU TITLE -->
+
+            <div class="admin-menu-title">
+                Menu Utama
+            </div>
+
+
+            <!-- MENU -->
+
+            <nav class="admin-menu">
+
+
+                <!-- DASHBOARD -->
+
+                <a href="/Dashboard"
+                   class="admin-menu-item @(currentPage == "/Dashboard" ? "active" : "")">
+
+                    <span class="admin-menu-icon">
+
+                        <svg viewBox="0 0 24 24"
+                             aria-hidden="true">
+
+                            <path d="M3 10.5 12 3l9 7.5" />
+
+                            <path d="M5.5 9.5V21h13V9.5" />
+
+                            <path d="M9.5 21v-6h5v6" />
+
+                        </svg>
+
+                    </span>
+
+                    <span class="admin-menu-label">
+                        Dashboard
+                    </span>
+
+                </a>
+
+
+                <!-- DATA KUNJUNGAN -->
+
+                <a href="/DataKunjungan"
+                   class="admin-menu-item @(currentPage == "/DataKunjungan" ? "active" : "")">
+
+                    <span class="admin-menu-icon">
+
+                        <svg viewBox="0 0 24 24"
+                             aria-hidden="true">
+
+                            <rect x="4"
+                                  y="3"
+                                  width="16"
+                                  height="18"
+                                  rx="2" />
+
+                            <path d="M8 8h8" />
+
+                            <path d="M8 12h8" />
+
+                            <path d="M8 16h5" />
+
+                        </svg>
+
+                    </span>
+
+                    <span class="admin-menu-label">
+                        Data Kunjungan
+                    </span>
+
+                </a>
+
+
+                <!-- NOTIFIKASI -->
+
+                <a href="/Notifikasi"
+                   class="admin-menu-item @(currentPage == "/Notifikasi" ? "active" : "")">
+
+                    <span class="admin-menu-icon">
+
+                        <svg viewBox="0 0 24 24"
+                             aria-hidden="true">
+
+                            <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9" />
+
+                            <path d="M10 21h4" />
+
+                        </svg>
+
+                    </span>
+
+                    <span class="admin-menu-label">
+                        Notifikasi
+                    </span>
+
+
+                    <span id="adminSidebarNotificationBadge"
+                          class="admin-badge"
+                          style="@(unreadNotificationCount > 0 ? "" : "display:none;")">
+
+                        @(unreadNotificationCount > 99
+                            ? "99+"
+                            : unreadNotificationCount.ToString())
+
+                    </span>
+
+                </a>
+
+
+                <!-- LAPORAN -->
+
+                <a href="/Laporan"
+                   class="admin-menu-item @(currentPage == "/Laporan" ? "active" : "")">
+
+                    <span class="admin-menu-icon">
+
+                        <svg viewBox="0 0 24 24"
+                             aria-hidden="true">
+
+                            <path d="M4 19V5" />
+
+                            <path d="M4 19h17" />
+
+                            <path d="M7 16v-4" />
+
+                            <path d="M11 16V8" />
+
+                            <path d="M15 16v-6" />
+
+                            <path d="M19 16V5" />
+
+                        </svg>
+
+                    </span>
+
+                    <span class="admin-menu-label">
+                        Laporan
+                    </span>
+
+                </a>
+
+
+                <!-- PENGGUNA -->
+
+                <a href="/Pengguna"
+                   class="admin-menu-item @(currentPage == "/Pengguna" ? "active" : "")">
+
+                    <span class="admin-menu-icon">
+
+                        <svg viewBox="0 0 24 24"
+                             aria-hidden="true">
+
+                            <circle cx="9"
+                                    cy="8"
+                                    r="3" />
+
+                            <path d="M3 20c.5-3.5 2.5-5 6-5s5.5 1.5 6 5" />
+
+                            <path d="M16 5.5a3 3 0 0 1 0 5" />
+
+                            <path d="M17 15c2.5.5 3.5 2 4 5" />
+
+                        </svg>
+
+                    </span>
+
+                    <span class="admin-menu-label">
+                        Pengguna
+                    </span>
+
+                </a>
+
+
+                <!-- PENGATURAN -->
+
+                <a href="/Pengaturan"
+                   class="admin-menu-item @(currentPage == "/Pengaturan" ? "active" : "")">
+
+                    <span class="admin-menu-icon">
+
+                        <svg viewBox="0 0 24 24"
+                             aria-hidden="true">
+
+                            <circle cx="12"
+                                    cy="12"
+                                    r="3" />
+
+                            <path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-1.8 1.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V20h-2.6v-.1a1.7 1.7 0 0 0-1-1.5 1.7 1.7 0 0 0-1.9.3l-.1.1-1.8-1.8.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H6v-2.6h.1a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1L9 6.6l.1.1a1.7 1.7 0 0 0 1.9.3 1.7 1.7 0 0 0 1-1.5V5h2.6v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1 1.8 1.8-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.5 1h.1v2.6h-.1a1.7 1.7 0 0 0-1.5 1z" />
+
+                        </svg>
+
+                    </span>
+
+                    <span class="admin-menu-label">
+                        Pengaturan Akun
+                    </span>
+
+                </a>
+
+            </nav>
+
+
+            <!-- =================================================
+                 LOGOUT
+            ================================================== -->
+
+            <div class="admin-sidebar-bottom">
+
+                <a href="/Logout"
+                   class="admin-logout">
+
+                    <span class="admin-logout-icon">
+
+                        <svg viewBox="0 0 24 24"
+                             aria-hidden="true">
+
+                            <path d="M10 17l5-5-5-5" />
+
+                            <path d="M15 12H3" />
+
+                            <path d="M21 19V5a2 2 0 0 0-2-2h-6" />
+
+                        </svg>
+
+                    </span>
+
+                    <span>
+                        Keluar
+                    </span>
+
+                </a>
+
+            </div>
+
+        </aside>
+
+
+        <!-- =================================================
+             MAIN
+        ================================================== -->
+
+        <main class="admin-main">
+
+
+            <!-- =================================================
+                 HEADER
+            ================================================== -->
+
+            <header class="admin-header">
+
+
+                <!-- PAGE TITLE -->
+
+                <div class="admin-header-title">
+
+                    <h1>
+                        @pageTitle
+                    </h1>
+
+                    <p>
+                        @pageDescription
+                    </p>
+
+                </div>
+
+
+                <!-- HEADER RIGHT -->
+
+                <div class="admin-header-right">
+
+
+                    <!-- NOTIFICATION -->
+
+                    <a href="/Notifikasi"
+                       class="admin-notification"
+                       title="Notifikasi">
+
+                        <svg viewBox="0 0 24 24"
+                             aria-hidden="true">
+
+                            <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9" />
+
+                            <path d="M10 21h4" />
+
+                        </svg>
+
+
+                        <span id="adminHeaderNotificationBadge"
+                              class="admin-notification-badge"
+                              style="@(unreadNotificationCount > 0 ? "" : "display:none;")">
+
+                            @(unreadNotificationCount > 99
+                                ? "99+"
+                                : unreadNotificationCount.ToString())
+
+                        </span>
+
+                    </a>
+
+
+                    <!-- USER -->
+
+                    <div class="admin-user">
+
+
+                        <!-- AVATAR -->
+
+                        <div class="admin-user-avatar">
+
+                            <svg viewBox="0 0 24 24"
+                                 aria-hidden="true">
+
+                                <circle cx="12"
+                                        cy="8"
+                                        r="3.2" />
+
+                                <path d="M5.5 20c.7-3.5 2.9-5.3 6.5-5.3s5.8 1.8 6.5 5.3" />
+
+                            </svg>
+
+                        </div>
+
+
+                        <!-- USER INFO -->
+
+                        <div class="admin-user-info">
+
+                            <strong title="@namaUser">
+                                @namaUser
+                            </strong>
+
+                            <span>
+                                @roleUser
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </header>
+
+
+            <!-- =================================================
+                 PAGE CONTENT
+            ================================================== -->
+
+            <section class="admin-content">
+
+                @RenderBody()
+
+            </section>
+
+        </main>
+
+    </div>
+
+
+    @await RenderSectionAsync(
+        "Scripts",
+        required: false
+    )
+
+
+
+    <script>
+
+        document.addEventListener("DOMContentLoaded", function () {
+
+            const realtimeUrl = "/Dashboard?handler=NotificationCount";
+            const pollingInterval = 3000;
+
+            function updateNotificationBadges(count) {
+
+                const sidebarBadge =
+                    document.getElementById("adminSidebarNotificationBadge");
+
+                const headerBadge =
+                    document.getElementById("adminHeaderNotificationBadge");
+
+                const displayCount = count > 99 ? "99+" : count.toString();
+
+                [sidebarBadge, headerBadge].forEach(function (badge) {
+
+                    if (!badge) return;
+
+                    badge.textContent = displayCount;
+                    badge.style.display = count > 0 ? "inline-flex" : "none";
+
+                });
+            }
+
+            async function updateAdminRealtime() {
+
+                try {
+
+                    const response = await fetch(
+                        realtimeUrl,
+                        {
+                            method: "GET",
+                            cache: "no-store",
+                            headers: {
+                                "X-Requested-With": "XMLHttpRequest"
+                            }
+                        }
+                    );
+
+                    if (!response.ok) {
+                        return;
+                    }
+
+                    const data = await response.json();
+
+                    if (typeof data.totalNotifikasi === "number") {
+                        updateNotificationBadges(data.totalNotifikasi);
+                    }
+
+                } catch (error) {
+                    console.warn("Realtime notifikasi gagal diperbarui.", error);
+                }
+            }
+
+            updateAdminRealtime();
+            setInterval(updateAdminRealtime, pollingInterval);
+
+        });
+
+    </script>
+
+</body>
+
+</html>

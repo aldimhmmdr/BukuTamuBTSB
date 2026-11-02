@@ -1,0 +1,1222 @@
+@page
+@model BTSB.Pages.LaporanCetakModel
+
+@{
+    Layout = null;
+
+    var totalData = Model.DataLaporan?.Count ?? 0;
+
+    var waktuCetak =
+        DateTime.Now.ToString(
+            "dd MMMM yyyy HH:mm",
+            new System.Globalization.CultureInfo("id-ID"));
+
+    var tanggalCetak =
+        DateTime.Now.ToString(
+            "dd MMMM yyyy",
+            new System.Globalization.CultureInfo("id-ID"));
+
+    var periodeText = Model.Periode;
+
+    var keperluanText =
+        string.IsNullOrWhiteSpace(Model.KeperluanFilter) ||
+        Model.KeperluanFilter == "Semua"
+            ? "Semua"
+            : Model.KeperluanFilter;
+
+    var instansiText =
+        string.IsNullOrWhiteSpace(Model.InstansiFilter) ||
+        Model.InstansiFilter == "Semua"
+            ? "Semua"
+            : Model.InstansiFilter;
+}
+
+<!DOCTYPE html>
+
+<html lang="id">
+
+<head>
+
+    <meta charset="utf-8" />
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1" />
+
+    <title>
+        Laporan Kunjungan Tamu - BTSB
+    </title>
+
+
+    <style>
+
+        /* =====================================================
+           PRINT PAGE
+        ===================================================== */
+
+        @@page {
+            size: A4 landscape;
+            margin: 12mm 12mm 13mm 12mm;
+        }
+
+
+        /* =====================================================
+           RESET
+        ===================================================== */
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: #eef2f7;
+
+            color: #172b4d;
+
+            font-family:
+                "Segoe UI",
+                Arial,
+                Helvetica,
+                sans-serif;
+
+            font-size: 10px;
+
+            line-height: 1.4;
+        }
+
+
+        /* =====================================================
+           BROWSER TOOLBAR
+        ===================================================== */
+
+        .screen-toolbar {
+            position: fixed;
+
+            top: 18px;
+            right: 22px;
+
+            z-index: 9999;
+
+            display: flex;
+
+            gap: 8px;
+        }
+
+        .screen-button {
+            display: inline-flex;
+
+            align-items: center;
+            justify-content: center;
+
+            gap: 7px;
+
+            height: 38px;
+
+            padding: 0 16px;
+
+            border-radius: 7px;
+
+            font-size: 12px;
+
+            font-weight: 600;
+
+            text-decoration: none;
+
+            cursor: pointer;
+
+            box-shadow:
+                0 3px 10px
+                rgba(15, 48, 87, .12);
+
+            transition: .15s ease;
+        }
+
+        .screen-button:hover {
+            transform: translateY(-1px);
+        }
+
+        .screen-button.back {
+            background: #ffffff;
+
+            color: #174f86;
+
+            border: 1px solid #d6e0eb;
+        }
+
+        .screen-button.print {
+            background: #147fd1;
+
+            color: #ffffff;
+
+            border: none;
+        }
+
+
+        /* =====================================================
+           REPORT PAGE
+        ===================================================== */
+
+        .report-page {
+            width: 297mm;
+
+            min-height: 210mm;
+
+            margin: 30px auto;
+
+            padding:
+                12mm
+                13mm
+                14mm;
+
+            background: #ffffff;
+
+            box-shadow:
+                0 8px 30px
+                rgba(20, 45, 75, .12);
+        }
+
+
+        /* =====================================================
+           HEADER
+        ===================================================== */
+
+        .report-header {
+            display: flex;
+
+            align-items: center;
+
+            padding-bottom: 10px;
+
+            border-bottom:
+                2px solid #155b95;
+        }
+
+        .logo-wrapper {
+            width: 58px;
+            height: 58px;
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            margin-right: 14px;
+
+            flex-shrink: 0;
+        }
+
+        .logo-wrapper img {
+            width: 54px;
+            height: 54px;
+
+            object-fit: contain;
+        }
+
+        .institution {
+            flex: 1;
+        }
+
+        .institution-name {
+            margin: 0;
+
+            font-size: 17px;
+
+            line-height: 1.2;
+
+            font-weight: 700;
+
+            color: #123f70;
+
+            text-transform: uppercase;
+        }
+
+        .institution-line {
+            margin-top: 2px;
+
+            font-size: 9px;
+
+            line-height: 1.35;
+
+            color: #4c5d70;
+        }
+
+        .report-code {
+            text-align: right;
+
+            padding-left: 20px;
+        }
+
+        .report-code strong {
+            display: block;
+
+            font-size: 14px;
+
+            color: #123f70;
+        }
+
+        .report-code span {
+            display: block;
+
+            margin-top: 2px;
+
+            font-size: 8.5px;
+
+            color: #697b8f;
+        }
+
+
+        /* =====================================================
+           TITLE
+        ===================================================== */
+
+        .report-title {
+            text-align: center;
+
+            padding:
+                13px 0 11px;
+        }
+
+        .report-title h1 {
+            margin: 0;
+
+            font-size: 17px;
+
+            line-height: 1.25;
+
+            letter-spacing: .35px;
+
+            color: #0c5593;
+        }
+
+        .report-title p {
+            margin: 3px 0 0;
+
+            font-size: 9px;
+
+            color: #68788a;
+        }
+
+
+        /* =====================================================
+           INFORMATION
+        ===================================================== */
+
+        .information-box {
+            display: grid;
+
+            grid-template-columns:
+                90px
+                1fr
+                90px
+                1fr;
+
+            gap: 5px 12px;
+
+            padding: 9px 12px;
+
+            margin-bottom: 11px;
+
+            background: #f7f9fc;
+
+            border: 1px solid #d8e1eb;
+
+            border-radius: 5px;
+        }
+
+        .information-label {
+            font-weight: 600;
+
+            color: #284f73;
+        }
+
+        .information-value {
+            color: #4f6071;
+
+            overflow-wrap: anywhere;
+        }
+
+
+        /* =====================================================
+           SUMMARY
+        ===================================================== */
+
+        .summary {
+            display: grid;
+
+            grid-template-columns:
+                repeat(3, 1fr);
+
+            gap: 8px;
+
+            margin-bottom: 13px;
+        }
+
+        .summary-card {
+            min-height: 55px;
+
+            padding: 7px 10px;
+
+            text-align: center;
+
+            background: #ffffff;
+
+            border:
+                1px solid #d3dfeb;
+
+            border-top:
+                3px solid #155d99;
+        }
+
+        .summary-label {
+            font-size: 8px;
+
+            color: #728296;
+        }
+
+        .summary-value {
+            margin-top: 2px;
+
+            font-size: 15px;
+
+            line-height: 1.2;
+
+            font-weight: 700;
+
+            color: #0b5da0;
+        }
+
+        .summary-note {
+            margin-top: 1px;
+
+            font-size: 7px;
+
+            color: #8a98a8;
+        }
+
+
+        /* =====================================================
+           SECTION TITLE
+        ===================================================== */
+
+        .section-title {
+            margin-bottom: 5px;
+
+            padding-bottom: 4px;
+
+            border-bottom:
+                1px solid #d4dde7;
+
+            font-size: 10px;
+
+            font-weight: 700;
+
+            color: #124f82;
+        }
+
+
+        /* =====================================================
+           TABLE
+        ===================================================== */
+
+        .report-table {
+            width: 100%;
+
+            border-collapse: collapse;
+
+            table-layout: fixed;
+
+            font-size: 8.2px;
+        }
+
+        .report-table th {
+            padding: 6px 5px;
+
+            background: #155b95;
+
+            color: #ffffff;
+
+            border:
+                1px solid #155b95;
+
+            font-weight: 600;
+
+            text-align: center;
+
+            vertical-align: middle;
+
+            line-height: 1.2;
+        }
+
+        .report-table td {
+            padding: 5px 5px;
+
+            border:
+                1px solid #d5dee8;
+
+            color: #34495e;
+
+            vertical-align: middle;
+
+            word-break: break-word;
+
+            line-height: 1.3;
+        }
+
+        .report-table tbody tr:nth-child(even) {
+            background: #f8fafc;
+        }
+
+        .report-table tbody tr {
+            page-break-inside: avoid;
+        }
+
+        .center {
+            text-align: center;
+        }
+
+        .nowrap {
+            white-space: nowrap;
+        }
+
+
+        /* =====================================================
+           DATE TIME
+        ===================================================== */
+
+        .datetime {
+            display: flex;
+
+            flex-direction: column;
+
+            align-items: center;
+
+            line-height: 1.25;
+        }
+
+        .datetime-date {
+            font-size: 7px;
+
+            color: #66788b;
+        }
+
+        .datetime-time {
+            font-size: 8px;
+
+            font-weight: 600;
+
+            color: #34495e;
+        }
+
+
+        /* =====================================================
+           STATUS
+        ===================================================== */
+
+        .status {
+            display: inline-flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            min-width: 50px;
+
+            padding: 3px 7px;
+
+            border-radius: 20px;
+
+            font-size: 7px;
+
+            font-weight: 600;
+
+            color: #177245;
+
+            background: #e6f7ed;
+        }
+
+
+        /* =====================================================
+           EMPTY
+        ===================================================== */
+
+        .empty-data {
+            padding: 25px !important;
+
+            text-align: center;
+
+            color: #7c8b9b !important;
+        }
+
+
+        /* =====================================================
+           SIGNATURE
+        ===================================================== */
+
+        .report-footer {
+            display: flex;
+
+            justify-content: flex-end;
+
+            margin-top: 18px;
+
+            page-break-inside: avoid;
+        }
+
+        .signature {
+            width: 190px;
+
+            text-align: center;
+
+            color: #394b5e;
+
+            font-size: 9px;
+        }
+
+        .signature-city {
+            margin-bottom: 2px;
+        }
+
+        .signature-title {
+            margin-bottom: 32px;
+        }
+
+        .signature-line {
+            padding-top: 5px;
+
+            border-top:
+                1px solid #555;
+        }
+
+
+        /* =====================================================
+           DOCUMENT FOOTER
+        ===================================================== */
+
+        .document-footer {
+            display: flex;
+
+            justify-content: space-between;
+
+            margin-top: 15px;
+
+            padding-top: 6px;
+
+            border-top:
+                1px solid #d8e0e8;
+
+            font-size: 7px;
+
+            color: #8391a0;
+        }
+
+
+        /* =====================================================
+           PRINT
+        ===================================================== */
+
+        @@media print {
+
+            html,
+            body {
+                width: 100%;
+
+                background: #ffffff !important;
+            }
+
+            body {
+                margin: 0;
+            }
+
+            .screen-toolbar {
+                display: none !important;
+            }
+
+            .report-page {
+                width: auto;
+
+                min-height: auto;
+
+                margin: 0;
+
+                padding: 0;
+
+                background: #ffffff;
+
+                box-shadow: none;
+            }
+
+            .report-header {
+                page-break-inside: avoid;
+            }
+
+            .information-box {
+                page-break-inside: avoid;
+            }
+
+            .summary {
+                page-break-inside: avoid;
+            }
+
+            .report-table {
+                page-break-inside: auto;
+            }
+
+            .report-table thead {
+                display: table-header-group;
+            }
+
+            .report-table tfoot {
+                display: table-footer-group;
+            }
+
+            .report-table tr {
+                page-break-inside: avoid;
+            }
+
+            .report-footer {
+                page-break-inside: avoid;
+            }
+
+            .document-footer {
+                page-break-inside: avoid;
+            }
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+    <!-- =====================================================
+         BROWSER TOOLBAR
+    ====================================================== -->
+
+    <div class="screen-toolbar">
+
+        <a href="/Laporan"
+           class="screen-button back">
+
+            ← Kembali
+
+        </a>
+
+        <button type="button"
+                class="screen-button print"
+                onclick="window.print()">
+
+            🖨 Cetak / Simpan PDF
+
+        </button>
+
+    </div>
+
+
+    <!-- =====================================================
+         REPORT
+    ====================================================== -->
+
+    <main class="report-page">
+
+
+        <!-- =================================================
+             HEADER INSTANSI
+        ================================================== -->
+
+        <header class="report-header">
+
+            <div class="logo-wrapper">
+
+                <img src="/images/pu.jpg"
+                     alt="Logo BTSB" />
+
+            </div>
+
+
+            <div class="institution">
+
+                <h2 class="institution-name">
+                    Balai Teknik Sains Bangunan
+                </h2>
+
+                <div class="institution-line">
+                    Direktorat Jenderal Cipta Karya
+                </div>
+
+                <div class="institution-line">
+                    Kementerian Pekerjaan Umum
+                </div>
+
+            </div>
+
+
+            <div class="report-code">
+
+                <strong>BTSB</strong>
+
+                <span>
+                    Buku Tamu Digital
+                </span>
+
+            </div>
+
+        </header>
+
+
+        <!-- =================================================
+             JUDUL
+        ================================================== -->
+
+        <section class="report-title">
+
+            <h1>
+                LAPORAN DATA KUNJUNGAN
+            </h1>
+
+            <p>
+                Rekapitulasi data kunjungan tamu
+            </p>
+
+        </section>
+
+
+        <!-- =================================================
+             INFORMASI LAPORAN
+        ================================================== -->
+
+        <section class="information-box">
+
+
+            <div class="information-label">
+                Periode
+            </div>
+
+            <div class="information-value">
+                : @periodeText
+            </div>
+
+
+            <div class="information-label">
+                Status
+            </div>
+
+            <div class="information-value">
+                : Selesai
+            </div>
+
+
+            <div class="information-label">
+                Keperluan
+            </div>
+
+            <div class="information-value">
+                : @keperluanText
+            </div>
+
+
+            <div class="information-label">
+                Instansi / Asal
+            </div>
+
+            <div class="information-value">
+                : @instansiText
+            </div>
+
+
+            <div class="information-label">
+                Tanggal Cetak
+            </div>
+
+            <div class="information-value">
+                : @waktuCetak
+            </div>
+
+
+            <div class="information-label">
+                Total Data
+            </div>
+
+            <div class="information-value">
+                : @totalData kunjungan
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             RINGKASAN
+        ================================================== -->
+
+        <section class="summary">
+
+
+            <div class="summary-card">
+
+                <div class="summary-label">
+                    Total Kunjungan
+                </div>
+
+                <div class="summary-value">
+                    @totalData
+                </div>
+
+                <div class="summary-note">
+                    data selesai
+                </div>
+
+            </div>
+
+
+            <div class="summary-card">
+
+                <div class="summary-label">
+                    Periode
+                </div>
+
+                <div class="summary-value"
+                     style="font-size: 11px;">
+
+                    @periodeText
+
+                </div>
+
+                <div class="summary-note">
+                    periode laporan
+                </div>
+
+            </div>
+
+
+            <div class="summary-card">
+
+                <div class="summary-label">
+                    Status
+                </div>
+
+                <div class="summary-value"
+                     style="font-size: 11px;">
+
+                    SELESAI
+
+                </div>
+
+                <div class="summary-note">
+                    kunjungan selesai
+                </div>
+
+            </div>
+
+
+        </section>
+
+
+        <!-- =================================================
+             DATA
+        ================================================== -->
+
+        <section>
+
+            <div class="section-title">
+                Data Laporan Kunjungan
+            </div>
+
+
+            <table class="report-table">
+
+
+                <thead>
+
+                    <tr>
+
+                        <th style="width: 4%;">
+                            No
+                        </th>
+
+                        <th style="width: 12%;">
+                            Nama
+                        </th>
+
+                        <th style="width: 10%;">
+                            Telepon
+                        </th>
+
+                        <th style="width: 13%;">
+                            Instansi / Asal
+                        </th>
+
+                        <th style="width: 16%;">
+                            Alamat
+                        </th>
+
+                        <th style="width: 16%;">
+                            Keperluan
+                        </th>
+
+                        <th style="width: 9%;">
+                            Jam Datang
+                        </th>
+
+                        <th style="width: 9%;">
+                            Jam Selesai
+                        </th>
+
+                        <th style="width: 6%;">
+                            Durasi
+                        </th>
+
+                        <th style="width: 5%;">
+                            Status
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+
+                    @if (Model.DataLaporan != null &&
+                         Model.DataLaporan.Any())
+                    {
+
+                        var nomor = 1;
+
+
+                        foreach (var item in Model.DataLaporan)
+                        {
+
+                            <tr>
+
+
+                                <!-- NO -->
+
+                                <td class="center">
+                                    @nomor
+                                </td>
+
+
+                                <!-- NAMA -->
+
+                                <td>
+                                    @item.Nama
+                                </td>
+
+
+                                <!-- TELEPON -->
+
+                                <td class="center">
+                                    @item.Telepon
+                                </td>
+
+
+                                <!-- INSTANSI -->
+
+                                <td>
+                                    @item.Instansi
+                                </td>
+
+
+                                <!-- ALAMAT -->
+
+                                <td>
+                                    @item.Alamat
+                                </td>
+
+
+                                <!-- KEPERLUAN -->
+
+                                <td>
+                                    @item.Keperluan
+                                </td>
+
+
+                                <!-- JAM DATANG -->
+
+                                <td class="center">
+
+                                    <div class="datetime">
+
+                                        <span class="datetime-date">
+                                            @item.WaktuDatang.ToString(
+                                                "dd MMM yyyy",
+                                                new System.Globalization.CultureInfo("id-ID"))
+                                        </span>
+
+                                        <span class="datetime-time">
+                                            @item.WaktuDatang.ToString("HH:mm")
+                                        </span>
+
+                                    </div>
+
+                                </td>
+
+
+                                <!-- JAM SELESAI -->
+
+                                <td class="center">
+
+                                    @if (item.WaktuSelesai.HasValue)
+                                    {
+
+                                        <div class="datetime">
+
+                                            <span class="datetime-date">
+                                                @item.WaktuSelesai.Value.ToString(
+                                                    "dd MMM yyyy",
+                                                    new System.Globalization.CultureInfo("id-ID"))
+                                            </span>
+
+                                            <span class="datetime-time">
+                                                @item.WaktuSelesai.Value.ToString("HH:mm")
+                                            </span>
+
+                                        </div>
+
+                                    }
+                                    else
+                                    {
+                                        <span>
+                                            -
+                                        </span>
+                                    }
+
+                                </td>
+
+
+                                <!-- DURASI -->
+
+                                <td class="center nowrap">
+
+                                    @(item.Durasi.HasValue
+                                        ? $"{item.Durasi.Value} menit"
+                                        : "-")
+
+                                </td>
+
+
+                                <!-- STATUS -->
+
+                                <td class="center">
+
+                                    <span class="status">
+                                        Selesai
+                                    </span>
+
+                                </td>
+
+
+                            </tr>
+
+
+                            nomor++;
+
+                        }
+
+                    }
+                    else
+                    {
+
+                        <tr>
+
+                            <td colspan="10"
+                                class="empty-data">
+
+                                Tidak terdapat data kunjungan
+                                sesuai filter yang dipilih.
+
+                            </td>
+
+                        </tr>
+
+                    }
+
+
+                </tbody>
+
+            </table>
+
+        </section>
+
+
+        <!-- =================================================
+             TANDA TANGAN
+        ================================================== -->
+
+        <footer class="report-footer">
+
+            <div class="signature">
+
+                <div class="signature-city">
+
+                    Bandung,
+                    @tanggalCetak
+
+                </div>
+
+
+                <div class="signature-title">
+                    Petugas,
+                </div>
+
+
+                <div class="signature-line">
+
+                    ( ................................ )
+
+                </div>
+
+            </div>
+
+        </footer>
+
+
+        <!-- =================================================
+             FOOTER DOKUMEN
+        ================================================== -->
+
+        <div class="document-footer">
+
+            <span>
+                BTSB - Buku Tamu Digital
+            </span>
+
+            <span>
+                Dokumen laporan kunjungan
+            </span>
+
+        </div>
+
+
+    </main>
+
+
+    <!-- =====================================================
+         AUTO PRINT
+    ====================================================== -->
+
+    <script>
+
+        window.addEventListener("load", function () {
+
+            setTimeout(function () {
+
+                window.print();
+
+            }, 700);
+
+        });
+
+    </script>
+
+
+</body>
+
+</html>

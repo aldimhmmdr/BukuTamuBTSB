@@ -1,0 +1,964 @@
+﻿@page
+@model PengaturanModel
+
+@{
+    Layout = "_AdminLayout";
+
+    ViewData["Title"] = "Pengaturan Akun";
+    ViewData["PageTitle"] = "Pengaturan Akun";
+    ViewData["PageDescription"] =
+        "Kelola profil dan keamanan akun Anda";
+}
+
+
+<section class="account-page">
+
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="account-alert success">
+
+            <svg viewBox="0 0 24 24">
+                <path d="M20 6 9 17l-5-5" />
+            </svg>
+
+            @TempData["Success"]
+
+        </div>
+    }
+
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="account-alert error">
+
+            <svg viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="9" />
+                <path d="M12 8v5" />
+                <path d="M12 16h.01" />
+            </svg>
+
+            @TempData["Error"]
+
+        </div>
+    }
+
+
+    @if (TempData["PasswordError"] != null)
+    {
+        <div class="account-alert error">
+
+            <svg viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="9" />
+                <path d="M12 8v5" />
+                <path d="M12 16h.01" />
+            </svg>
+
+            @TempData["PasswordError"]
+
+        </div>
+    }
+
+
+    <div class="account-card">
+
+
+        <!-- ==============================================
+             MENU
+        =============================================== -->
+
+        <aside class="account-menu">
+
+            <div class="account-menu-title">
+                PENGATURAN AKUN
+            </div>
+
+
+            <button type="button"
+                    class="account-menu-item active"
+                    data-target="profil">
+
+                <svg viewBox="0 0 24 24">
+
+                    <circle cx="12"
+                            cy="8"
+                            r="3" />
+
+                    <path d="M5 20c.8-3.5 3.1-5 7-5s6.2 1.5 7 5" />
+
+                </svg>
+
+                Profil Akun
+
+            </button>
+
+
+            <button type="button"
+                    class="account-menu-item"
+                    data-target="keamanan">
+
+                <svg viewBox="0 0 24 24">
+
+                    <rect x="5"
+                          y="10"
+                          width="14"
+                          height="10"
+                          rx="2" />
+
+                    <path d="M8 10V7a4 4 0 0 1 8 0v3" />
+
+                </svg>
+
+                Keamanan
+
+            </button>
+
+        </aside>
+
+
+        <!-- ==============================================
+             CONTENT
+        =============================================== -->
+
+        <div class="account-content">
+
+
+            <!-- ==========================================
+                 PROFIL
+            =========================================== -->
+
+            <div class="account-section active"
+                 id="profil">
+
+                <div class="account-section-heading">
+
+                    <h2>
+                        Profil Akun
+                    </h2>
+
+                    <p>
+                        Kelola informasi akun yang sedang digunakan.
+                    </p>
+
+                </div>
+
+
+                <form method="post"
+                      asp-page-handler="SimpanProfil">
+
+
+                    <div class="account-form">
+
+
+                        <!-- NAMA -->
+
+                        <div class="account-form-row">
+
+                            <label>
+                                Nama
+                            </label>
+
+                            <input type="text"
+                                   asp-for="Nama"
+                                   class="account-input"
+                                   placeholder="Masukkan nama"
+                                   required />
+
+                        </div>
+
+
+                        <!-- USERNAME -->
+
+                        <div class="account-form-row">
+
+                            <label>
+                                Username
+                            </label>
+
+                            <input type="text"
+                                   class="account-input readonly"
+                                   value="@Model.CurrentUser?.Username"
+                                   readonly />
+
+                        </div>
+
+
+                        <!-- ROLE -->
+
+                        <div class="account-form-row">
+
+                            <label>
+                                Role
+                            </label>
+
+                            <div class="account-role">
+
+                                @if (Model.CurrentUser?.Role == "Admin")
+                                {
+                                    <span class="role-badge admin">
+                                        Admin
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="role-badge petugas">
+                                        Petugas
+                                    </span>
+                                }
+
+                            </div>
+
+                        </div>
+
+
+                    </div>
+
+
+                    <div class="account-actions">
+
+                        <button type="submit"
+                                class="account-save-button">
+
+                            <svg viewBox="0 0 24 24">
+
+                                <path d="M5 4h12l2 2v14H5z" />
+
+                                <path d="M8 4v6h8V4" />
+
+                                <path d="M8 20v-6h8v6" />
+
+                            </svg>
+
+                            Simpan Perubahan
+
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+
+            <!-- ==========================================
+                 KEAMANAN
+            =========================================== -->
+
+            <div class="account-section"
+                 id="keamanan">
+
+                <div class="account-section-heading">
+
+                    <h2>
+                        Keamanan
+                    </h2>
+
+                    <p>
+                        Ubah password untuk menjaga keamanan akun Anda.
+                    </p>
+
+                </div>
+
+
+                <form method="post"
+                      asp-page-handler="UbahPassword">
+
+
+                    <div class="account-form">
+
+
+                        <!-- PASSWORD LAMA -->
+
+                        <div class="account-form-row">
+
+                            <label>
+                                Password Saat Ini
+                            </label>
+
+                            <input type="password"
+                                   asp-for="PasswordSaatIni"
+                                   class="account-input"
+                                   placeholder="Masukkan password saat ini"
+                                   autocomplete="current-password"
+                                   required />
+
+                        </div>
+
+
+                        <!-- PASSWORD BARU -->
+
+                        <div class="account-form-row">
+
+                            <label>
+                                Password Baru
+                            </label>
+
+                            <input type="password"
+                                   asp-for="PasswordBaru"
+                                   class="account-input"
+                                   placeholder="Minimal 6 karakter"
+                                   autocomplete="new-password"
+                                   required />
+
+                        </div>
+
+
+                        <!-- KONFIRMASI -->
+
+                        <div class="account-form-row">
+
+                            <label>
+                                Konfirmasi Password
+                            </label>
+
+                            <input type="password"
+                                   asp-for="KonfirmasiPassword"
+                                   class="account-input"
+                                   placeholder="Ulangi password baru"
+                                   autocomplete="new-password"
+                                   required />
+
+                        </div>
+
+
+                    </div>
+
+
+                    <div class="password-note">
+
+                        <svg viewBox="0 0 24 24">
+
+                            <circle cx="12"
+                                    cy="12"
+                                    r="9" />
+
+                            <path d="M12 11v5" />
+
+                            <path d="M12 8h.01" />
+
+                        </svg>
+
+                        Gunakan password minimal 6 karakter dan jangan
+                        menggunakan password yang mudah ditebak.
+
+                    </div>
+
+
+                    <div class="account-actions">
+
+                        <button type="submit"
+                                class="account-save-button">
+
+                            <svg viewBox="0 0 24 24">
+
+                                <path d="M5 4h12l2 2v14H5z" />
+
+                                <path d="M8 4v6h8V4" />
+
+                                <path d="M8 20v-6h8v6" />
+
+                            </svg>
+
+                            Simpan Password
+
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<style>
+
+/* =====================================================
+   PAGE
+===================================================== */
+
+.account-page {
+    width: 100%;
+}
+
+
+/* =====================================================
+   ALERT
+===================================================== */
+
+.account-alert {
+    min-height: 40px;
+    margin-bottom: 14px;
+    padding: 9px 13px;
+
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    border-radius: 7px;
+
+    font-size: 10px;
+    font-weight: 600;
+}
+
+.account-alert svg {
+    width: 15px;
+    height: 15px;
+
+    flex-shrink: 0;
+
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.account-alert.success {
+    color: #18794e;
+    background: #edf9f2;
+    border: 1px solid #cdebd9;
+}
+
+.account-alert.error {
+    color: #c0392b;
+    background: #fff1ef;
+    border: 1px solid #f0d0cb;
+}
+
+
+/* =====================================================
+   MAIN CARD
+===================================================== */
+
+.account-card {
+    width: 100%;
+    min-height: 0;
+
+    display: flex;
+
+    background: #ffffff;
+
+    border: 1px solid #dce5ef;
+    border-radius: 10px;
+
+    overflow: hidden;
+
+    box-shadow:
+        0 2px 8px rgba(20, 50, 80, .035);
+}
+
+
+/* =====================================================
+   LEFT MENU
+===================================================== */
+
+.account-menu {
+    width: 185px;
+
+    flex-shrink: 0;
+
+    padding: 21px 10px;
+
+    background: #f8fafc;
+
+    border-right: 1px solid #e2e9f1;
+}
+
+.account-menu-title {
+    padding: 0 9px 12px;
+
+    color: #8795a5;
+
+    font-size: 8px;
+    font-weight: 700;
+
+    letter-spacing: .3px;
+}
+
+.account-menu-item {
+    width: 100%;
+    height: 39px;
+
+    margin-bottom: 4px;
+    padding: 0 10px;
+
+    display: flex;
+    align-items: center;
+
+    gap: 8px;
+
+    border: none;
+    border-radius: 6px;
+
+    background: transparent;
+
+    color: #64768a;
+
+    font-family: inherit;
+
+    font-size: 10px;
+    font-weight: 500;
+
+    text-align: left;
+
+    cursor: pointer;
+
+    transition:
+        background .18s ease,
+        color .18s ease;
+}
+
+.account-menu-item:hover {
+    background: #edf4fb;
+    color: #126bb3;
+}
+
+.account-menu-item.active {
+    background: #1681d4;
+    color: #ffffff;
+
+    box-shadow:
+        0 2px 5px rgba(22,129,212,.15);
+}
+
+.account-menu-item svg {
+    width: 13px;
+    height: 13px;
+
+    stroke: currentColor;
+    fill: none;
+
+    stroke-width: 1.8;
+
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+
+/* =====================================================
+   CONTENT
+===================================================== */
+
+.account-content {
+    flex: 1;
+
+    min-width: 0;
+
+    padding: 27px 30px 25px;
+}
+
+.account-section {
+    display: none;
+
+    width: 100%;
+}
+
+.account-section.active {
+    display: block;
+}
+
+
+/* =====================================================
+   SECTION HEADER
+===================================================== */
+
+.account-section-heading {
+    max-width: 720px;
+
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+
+    border-bottom: 1px solid #e7edf3;
+}
+
+.account-section-heading h2 {
+    margin: 0;
+
+    color: #123f73;
+
+    font-size: 17px;
+    font-weight: 700;
+
+    line-height: 1.3;
+}
+
+.account-section-heading p {
+    margin: 5px 0 0;
+
+    color: #8190a2;
+
+    font-size: 10px;
+
+    line-height: 1.4;
+}
+
+
+/* =====================================================
+   FORM
+===================================================== */
+
+.account-form {
+    width: 100%;
+    max-width: 720px;
+}
+
+.account-form-row {
+    min-height: 42px;
+
+    margin-bottom: 13px;
+
+    display: grid;
+
+    grid-template-columns: 125px 1fr;
+
+    align-items: center;
+
+    column-gap: 16px;
+}
+
+.account-form-row label {
+    color: #40566f;
+
+    font-size: 10px;
+    font-weight: 600;
+}
+
+
+/* =====================================================
+   INPUT
+===================================================== */
+
+.account-input {
+    width: 100%;
+    max-width: 560px;
+
+    height: 36px;
+
+    padding: 0 10px;
+
+    border: 1px solid #d8e2ec;
+    border-radius: 6px;
+
+    outline: none;
+
+    background: #ffffff;
+
+    color: #40566f;
+
+    font-family: inherit;
+
+    font-size: 10px;
+
+    transition:
+        border-color .2s ease,
+        box-shadow .2s ease;
+}
+
+.account-input:focus {
+    border-color: #2384d8;
+
+    box-shadow:
+        0 0 0 3px rgba(35,132,216,.08);
+}
+
+.account-input.readonly {
+    background: #f6f8fa;
+
+    color: #7c8998;
+
+    cursor: not-allowed;
+}
+
+.account-input::placeholder {
+    color: #a2aebb;
+}
+
+
+/* =====================================================
+   ROLE
+===================================================== */
+
+.account-role {
+    height: 36px;
+
+    display: flex;
+    align-items: center;
+}
+
+.role-badge {
+    padding: 5px 9px;
+
+    border-radius: 5px;
+
+    font-size: 9px;
+    font-weight: 700;
+}
+
+.role-badge.admin {
+    background: #e6f1ff;
+    color: #1774c4;
+}
+
+.role-badge.petugas {
+    background: #edf3ff;
+    color: #4a63a0;
+}
+
+
+/* =====================================================
+   ACTION
+===================================================== */
+
+.account-actions {
+    max-width: 720px;
+
+    margin-top: 19px;
+    padding-top: 15px;
+
+    display: flex;
+    justify-content: flex-end;
+
+    border-top: 1px solid #e7edf3;
+}
+
+.account-save-button {
+    height: 34px;
+
+    padding: 0 14px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 6px;
+
+    border: none;
+    border-radius: 6px;
+
+    background: #1681d4;
+    color: #ffffff;
+
+    font-family: inherit;
+
+    font-size: 10px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 2px 5px rgba(22,129,212,.15);
+
+    transition:
+        background .18s ease,
+        transform .18s ease;
+}
+
+.account-save-button:hover {
+    background: #126fb9;
+
+    transform: translateY(-1px);
+}
+
+.account-save-button svg {
+    width: 13px;
+    height: 13px;
+
+    stroke: currentColor;
+    fill: none;
+
+    stroke-width: 1.8;
+
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+
+/* =====================================================
+   PASSWORD NOTE
+===================================================== */
+
+.password-note {
+    max-width: 720px;
+
+    margin-top: 3px;
+
+    padding: 10px 12px;
+
+    display: flex;
+    align-items: center;
+
+    gap: 8px;
+
+    border-radius: 6px;
+
+    background: #f3f8fd;
+
+    color: #6c8195;
+
+    font-size: 9px;
+
+    line-height: 1.4;
+}
+
+.password-note svg {
+    width: 14px;
+    height: 14px;
+
+    flex-shrink: 0;
+
+    stroke: currentColor;
+    fill: none;
+
+    stroke-width: 1.8;
+
+    stroke-linecap: round;
+}
+
+
+/* =====================================================
+   RESPONSIVE
+===================================================== */
+
+@@media (max-width: 700px) {
+
+    .account-card {
+        flex-direction: column;
+    }
+
+    .account-menu {
+        width: 100%;
+
+        display: flex;
+
+        gap: 5px;
+
+        padding: 10px;
+
+        overflow-x: auto;
+
+        border-right: none;
+        border-bottom: 1px solid #e2e9f1;
+    }
+
+    .account-menu-title {
+        display: none;
+    }
+
+    .account-menu-item {
+        width: auto;
+
+        min-width: 120px;
+
+        margin-bottom: 0;
+    }
+
+    .account-content {
+        padding: 20px;
+    }
+
+    .account-form-row {
+        grid-template-columns: 1fr;
+
+        gap: 6px;
+
+        align-items: start;
+    }
+
+    .account-input {
+        max-width: none;
+    }
+
+    .account-actions {
+        max-width: none;
+    }
+}
+
+</style>
+
+
+<script>
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        function () {
+
+            const menuItems =
+                document.querySelectorAll(
+                    ".account-menu-item"
+                );
+
+
+            const sections =
+                document.querySelectorAll(
+                    ".account-section"
+                );
+
+
+            menuItems.forEach(function (item) {
+
+                item.addEventListener(
+                    "click",
+                    function () {
+
+                        const target =
+                            item.getAttribute(
+                                "data-target"
+                            );
+
+
+                        menuItems.forEach(
+                            function (menu) {
+
+                                menu.classList.remove(
+                                    "active"
+                                );
+
+                            }
+                        );
+
+
+                        sections.forEach(
+                            function (section) {
+
+                                section.classList.remove(
+                                    "active"
+                                );
+
+                            }
+                        );
+
+
+                        item.classList.add(
+                            "active"
+                        );
+
+
+                        const targetSection =
+                            document.getElementById(
+                                target
+                            );
+
+
+                        if (targetSection) {
+
+                            targetSection.classList.add(
+                                "active"
+                            );
+
+                        }
+
+                    }
+                );
+
+            });
+
+        }
+    );
+
+</script>

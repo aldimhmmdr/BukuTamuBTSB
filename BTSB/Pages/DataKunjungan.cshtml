@@ -1,0 +1,798 @@
+﻿@page
+@model BTSB.Pages.DataKunjunganModel
+
+@{
+    ViewData["Title"] = "Data Kunjungan";
+    ViewData["PageTitle"] = "Data Kunjungan";
+    ViewData["PageDescription"] =
+        "Daftar data kunjungan tamu Balai Teknik Sains Bangunan";
+
+    Layout = "_AdminLayout";
+}
+
+<style>
+
+    /* =====================================================
+           CONTENT DATA KUNJUNGAN
+        ===================================================== */
+
+    .data-kunjungan-page {
+        width: 100%;
+    }
+
+    .card {
+        background: white;
+        border: 1px solid #dce5ef;
+        border-radius: 10px;
+        box-shadow: 0 2px 7px rgba(20,50,80,.04);
+    }
+
+
+    /* =====================================================
+           FILTER
+        ===================================================== */
+
+    .filter-card {
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+
+    .filter-title {
+        font-size: 16px;
+        font-weight: bold;
+        color: #123f76;
+        margin-bottom: 18px;
+    }
+
+    .filter-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr 1fr 2fr;
+        gap: 12px;
+        align-items: end;
+    }
+
+    .field label {
+        display: block;
+        font-size: 11px;
+        color: #52677f;
+        font-weight: bold;
+        margin-bottom: 6px;
+    }
+
+    .field input,
+    .field select {
+        width: 100%;
+        height: 38px;
+        border: 1px solid #d4deea;
+        border-radius: 6px;
+        padding: 0 10px;
+        color: #334d68;
+        background: white;
+        outline: none;
+    }
+
+        .field input:focus,
+        .field select:focus {
+            border-color: #2185dc;
+        }
+
+    .search-field {
+        position: relative;
+    }
+
+        .search-field input {
+            padding-right: 35px;
+        }
+
+    .search-icon {
+        position: absolute;
+        right: 12px;
+        bottom: 10px;
+        color: #8091a7;
+    }
+
+    .filter-buttons {
+        margin-top: 15px;
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+    }
+
+
+    /* =====================================================
+           BUTTON
+        ===================================================== */
+
+    .btn {
+        height: 38px;
+        padding: 0 17px;
+        border-radius: 6px;
+        border: none;
+        cursor: pointer;
+        font-size: 12px;
+        font-weight: bold;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .btn-primary {
+        background: #1178d1;
+        color: white;
+    }
+
+        .btn-primary:hover {
+            background: #0969bb;
+        }
+
+    .btn-light {
+        background: #edf3f9;
+        color: #315477;
+    }
+
+        .btn-light:hover {
+            background: #e2ebf4;
+        }
+
+
+    /* =====================================================
+           TABLE
+        ===================================================== */
+
+    .table-card {
+        overflow: hidden;
+    }
+
+    .table-header {
+        padding: 18px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid #e1e7ee;
+    }
+
+        .table-header h2 {
+            margin: 0;
+            font-size: 17px;
+            color: #123f76;
+        }
+
+    .table-actions {
+        display: flex;
+        gap: 8px;
+    }
+
+    .table-wrapper {
+        width: 100%;
+        overflow-x: auto;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 950px;
+    }
+
+    thead {
+        background: #edf4fb;
+    }
+
+    th {
+        padding: 13px 10px;
+        text-align: left;
+        font-size: 11px;
+        color: #355574;
+        font-weight: bold;
+        white-space: nowrap;
+    }
+
+    td {
+        padding: 14px 10px;
+        border-bottom: 1px solid #edf1f5;
+        font-size: 12px;
+        color: #41566d;
+        white-space: nowrap;
+    }
+
+    tbody tr:hover {
+        background: #f8fbfe;
+    }
+
+
+    /* =====================================================
+           STATUS
+        ===================================================== */
+
+    .status {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 5px 10px;
+        border-radius: 5px;
+        font-size: 10px;
+        font-weight: bold;
+    }
+
+    .status-menunggu {
+        background: #d9edff;
+        color: #1478c9;
+    }
+
+    .status-dilayani {
+        background: #fff0d5;
+        color: #d98100;
+    }
+
+    .status-selesai {
+        background: #d9f4e8;
+        color: #14945e;
+    }
+
+    .status-default {
+        background: #edf0f4;
+        color: #596b7d;
+    }
+
+
+    /* =====================================================
+           ACTION
+        ===================================================== */
+
+    .action-group {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        white-space: nowrap;
+    }
+
+    .action-button {
+        height: 30px;
+        padding: 0 10px;
+        border: 1px solid #d6e0eb;
+        border-radius: 5px;
+        background: white;
+        color: #37618a;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 11px;
+        font-weight: bold;
+    }
+
+        .action-button:hover {
+            background: #f1f6fb;
+        }
+
+    .action-layani {
+        background: #1178d1;
+        color: white;
+        border-color: #1178d1;
+    }
+
+        .action-layani:hover {
+            background: #0969bb;
+        }
+
+    .action-selesai {
+        background: #14945e;
+        color: white;
+        border-color: #14945e;
+    }
+
+        .action-selesai:hover {
+            background: #107d4f;
+        }
+
+
+    /* =====================================================
+           EMPTY
+        ===================================================== */
+
+    .empty {
+        padding: 50px 20px;
+        text-align: center;
+        color: #8292a5;
+    }
+
+    .empty-icon {
+        font-size: 35px;
+        margin-bottom: 10px;
+    }
+
+
+    /* =====================================================
+           FOOTER
+        ===================================================== */
+
+    .table-footer {
+        padding: 15px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        color: #8292a5;
+        font-size: 11px;
+    }
+
+
+    /* =====================================================
+           RESPONSIVE
+        ===================================================== */
+
+    @@media (max-width: 1100px) {
+
+        .filter-grid {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .search-field {
+            grid-column: span 2;
+        }
+    }
+
+    @@media (max-width: 750px) {
+
+        .filter-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .search-field {
+            grid-column: auto;
+        }
+
+        .table-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .table-actions {
+            width: 100%;
+        }
+    }
+
+</style>
+
+
+<div class="data-kunjungan-page">
+
+
+    <!-- =====================================================
+         FILTER
+    ===================================================== -->
+
+    <form method="get"
+          class="card filter-card">
+
+        <div class="filter-title">
+            Filter Data Kunjungan
+        </div>
+
+
+        <div class="filter-grid">
+
+            <!-- DARI TANGGAL -->
+
+            <div class="field">
+
+                <label>
+                    Dari Tanggal
+                </label>
+
+                <input type="date"
+                       asp-for="DariTanggal" />
+
+            </div>
+
+
+            <!-- SAMPAI TANGGAL -->
+
+            <div class="field">
+
+                <label>
+                    Sampai Tanggal
+                </label>
+
+                <input type="date"
+                       asp-for="SampaiTanggal" />
+
+            </div>
+
+
+            <!-- KEPERLUAN -->
+
+            <div class="field">
+
+                <label>
+                    Keperluan
+                </label>
+
+                <select asp-for="KeperluanFilter">
+
+                    <option value="Semua">
+                        Semua
+                    </option>
+
+                    <option value="Advis Teknis">
+                        Advis Teknis
+                    </option>
+
+                    <option value="Pengujian Termal">
+                        Pengujian Termal
+                    </option>
+
+                    <option value="Pengujian Ketahanan Api">
+                        Pengujian Ketahanan Api
+                    </option>
+
+                    <option value="Pengujian Akustik">
+                        Pengujian Akustik
+                    </option>
+
+                    <option value="Bimbingan Teknis">
+                        Bimbingan Teknis
+                    </option>
+
+                    <option value="Lainnya">
+                        Lainnya
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- STATUS -->
+
+            <div class="field">
+
+                <label>
+                    Status
+                </label>
+
+                <select asp-for="StatusFilter">
+
+                    <option value="Semua">
+                        Semua
+                    </option>
+
+                    <option value="Menunggu">
+                        Menunggu
+                    </option>
+
+                    <option value="Sedang Dilayani">
+                        Sedang Dilayani
+                    </option>
+
+                    <option value="Selesai">
+                        Selesai
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- SEARCH -->
+
+            <div class="field search-field">
+
+                <label>
+                    Cari Data
+                </label>
+
+                <input type="text"
+                       asp-for="Search"
+                       placeholder="Cari nama, instansi, atau keperluan..." />
+
+                <span class="search-icon">
+                    🔍
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <!-- FILTER BUTTON -->
+
+        <div class="filter-buttons">
+
+            <a href="/DataKunjungan"
+               class="btn btn-light">
+
+                Reset
+
+            </a>
+
+            <button type="submit"
+                    class="btn btn-primary">
+
+                Tampilkan
+
+            </button>
+
+        </div>
+
+    </form>
+
+
+    <!-- =====================================================
+         TABLE
+    ===================================================== -->
+
+    <div class="card table-card">
+
+
+        <div class="table-header">
+
+            <h2>
+                Data Kunjungan
+            </h2>
+
+        </div>
+
+
+        <div class="table-wrapper">
+
+            @if (Model.Data.Count == 0)
+            {
+                <div class="empty">
+
+                    <div class="empty-icon">
+                        📋
+                    </div>
+
+                    <div>
+                        Belum ada data kunjungan.
+                    </div>
+
+                </div>
+            }
+            else
+            {
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                No
+                            </th>
+
+                            <th>
+                                Nama
+                            </th>
+
+                            <th>
+                                Instansi / Asal
+                            </th>
+
+                            <th>
+                                Keperluan
+                            </th>
+
+                            <th>
+                                Jam Datang
+                            </th>
+
+                            <th>
+                                Jam Selesai
+                            </th>
+
+                            <th>
+                                Durasi
+                            </th>
+
+                            <th>
+                                Status
+                            </th>
+
+                            <th>
+                                Aksi
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        @{
+                            var nomor = 1;
+                        }
+
+                        @foreach (var item in Model.Data)
+                        {
+                            <tr>
+
+                                <!-- NO -->
+
+                                <td>
+                                    @nomor
+                                </td>
+
+
+                                <!-- NAMA -->
+
+                                <td>
+                                    <strong>
+                                        @item.Nama
+                                    </strong>
+                                </td>
+
+
+                                <!-- INSTANSI -->
+
+                                <td>
+                                    @item.Instansi
+                                </td>
+
+
+                                <!-- KEPERLUAN -->
+
+                                <td>
+                                    @item.Keperluan
+                                </td>
+
+
+                                <!-- JAM DATANG -->
+
+                                <td>
+                                    @item.WaktuDatang.ToString("HH:mm")
+                                </td>
+
+
+                                <!-- JAM SELESAI -->
+
+                                <td>
+
+                                    @if (item.WaktuSelesai.HasValue)
+                                    {
+                                        @item.WaktuSelesai.Value.ToString("HH:mm")
+                                    }
+                                    else
+                                    {
+                                        <span>-</span>
+                                    }
+
+                                </td>
+
+
+                                <!-- DURASI -->
+
+                                <td>
+
+                                    @if (item.Durasi.HasValue)
+                                    {
+                                        <span>
+                                            @item.Durasi.Value menit
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span>-</span>
+                                    }
+
+                                </td>
+
+
+                                <!-- STATUS -->
+
+                                <td>
+
+                                    @if (item.Status == "Menunggu")
+                                    {
+                                        <span class="status status-menunggu">
+                                            Menunggu
+                                        </span>
+                                    }
+                                    else if (item.Status == "Sedang Dilayani")
+                                    {
+                                        <span class="status status-dilayani">
+                                            Sedang Dilayani
+                                        </span>
+                                    }
+                                    else if (item.Status == "Selesai")
+                                    {
+                                        <span class="status status-selesai">
+                                            Selesai
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="status status-default">
+                                            @item.Status
+                                        </span>
+                                    }
+
+                                </td>
+
+
+                                <!-- AKSI -->
+
+                                <td>
+
+                                    <div class="action-group">
+
+                                        @if (item.Status == "Menunggu")
+                                        {
+                                            <form method="post"
+                                                  asp-page-handler="Layani"
+                                                  style="display:inline;">
+
+                                                <input type="hidden"
+                                                       name="id"
+                                                       value="@item.Id" />
+
+                                                <button type="submit"
+                                                        class="action-button action-layani">
+
+                                                    Layani
+
+                                                </button>
+
+                                            </form>
+                                        }
+                                        else if (item.Status == "Sedang Dilayani")
+                                        {
+                                            <form method="post"
+                                                  asp-page-handler="Selesai"
+                                                  style="display:inline;">
+
+                                                <input type="hidden"
+                                                       name="id"
+                                                       value="@item.Id" />
+
+                                                <button type="submit"
+                                                        class="action-button action-selesai">
+
+                                                    Selesai
+
+                                                </button>
+
+                                            </form>
+                                        }
+
+
+                                        <a href="/DetailKunjungan?id=@item.Id"
+                                           class="action-button">
+
+                                            Detail
+
+                                        </a>
+
+                                    </div>
+
+                                </td>
+
+                            </tr>
+
+                            nomor++;
+                        }
+
+                    </tbody>
+
+                </table>
+            }
+
+        </div>
+
+
+        <!-- FOOTER -->
+
+        <div class="table-footer">
+
+            <span>
+                Menampilkan @Model.Data.Count data
+            </span>
+
+        </div>
+
+    </div>
+
+</div>

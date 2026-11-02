@@ -1,0 +1,1479 @@
+@page
+@model LaporanModel
+
+@{
+    Layout = "_AdminLayout";
+
+    ViewData["Title"] = "Laporan";
+    ViewData["PageTitle"] = "Laporan";
+    ViewData["PageDescription"] =
+        "Rekapitulasi data kunjungan tamu Balai Teknik Sains Bangunan";
+
+
+    // =========================================================
+    // NILAI MAKSIMUM GRAFIK
+    // =========================================================
+
+    var maxGrafik = Model.GrafikKeperluan.Any()
+        ? Model.GrafikKeperluan.Max(x => x.Value)
+        : 0;
+
+
+    // =========================================================
+    // TOTAL STATUS
+    // =========================================================
+
+    var totalStatus =
+        Model.TotalMenunggu +
+        Model.TotalDilayani +
+        Model.TotalSelesai;
+
+
+    // =========================================================
+    // PERSENTASE STATUS
+    // =========================================================
+
+    var persenMenunggu =
+        totalStatus > 0
+            ? (double)Model.TotalMenunggu / totalStatus * 100
+            : 0;
+
+    var persenDilayani =
+        totalStatus > 0
+            ? (double)Model.TotalDilayani / totalStatus * 100
+            : 0;
+
+    var persenSelesai =
+        totalStatus > 0
+            ? (double)Model.TotalSelesai / totalStatus * 100
+            : 0;
+}
+
+
+<!-- =========================================================
+     STYLE KHUSUS HALAMAN LAPORAN
+========================================================= -->
+
+<style>
+
+    /* =====================================================
+           CONTENT
+        ===================================================== */
+
+    .laporan-content {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+
+    /* =====================================================
+           CARD
+        ===================================================== */
+
+    .laporan-card {
+        background: #ffffff;
+        border: 1px solid #dce5ef;
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(20, 50, 80, 0.04);
+    }
+
+
+    /* =====================================================
+           FILTER
+        ===================================================== */
+
+    .laporan-filter {
+        padding: 20px;
+    }
+
+    .laporan-section-title {
+        margin: 0 0 18px;
+        color: #123f73;
+        font-size: 17px;
+        font-weight: 700;
+    }
+
+    .laporan-filter-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1.1fr 1.1fr auto;
+        gap: 12px;
+        align-items: end;
+    }
+
+    .laporan-field {
+        display: flex;
+        flex-direction: column;
+        gap: 7px;
+    }
+
+        .laporan-field label {
+            color: #52657a;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .laporan-field input,
+        .laporan-field select {
+            width: 100%;
+            height: 40px;
+            padding: 0 12px;
+            border: 1px solid #cfdbe8;
+            border-radius: 6px;
+            background: #ffffff;
+            color: #263f5c;
+            font-family: inherit;
+            font-size: 13px;
+            outline: none;
+        }
+
+            .laporan-field input:focus,
+            .laporan-field select:focus {
+                border-color: #197bd1;
+                box-shadow: 0 0 0 2px rgba(25, 123, 209, .10);
+            }
+
+    .laporan-filter-buttons {
+        display: flex;
+        gap: 8px;
+    }
+
+
+    /* =====================================================
+           BUTTON
+        ===================================================== */
+    .btn-print {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        height: 40px;
+        padding: 0 18px;
+        background: #1976d2;
+        color: #ffffff;
+        border: 1px solid #1976d2;
+        border-radius: 7px;
+        font-size: 13px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+
+        .btn-print:hover {
+            background: #125fa8;
+            border-color: #125fa8;
+            color: #ffffff;
+            transform: translateY(-1px);
+        }
+
+        .btn-print .btn-icon {
+            width: 16px;
+            height: 16px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+        }
+
+        .btn-print .btn-icon svg {
+            width: 16px;
+            height: 16px;
+            display: block;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 1.8px;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+    .btn-excel {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        height: 40px;
+        padding: 0 18px;
+        background: #198754;
+        color: #ffffff;
+        border: 1px solid #198754;
+        border-radius: 7px;
+        font-size: 13px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+
+        .btn-excel:hover {
+            background: #157347;
+            border-color: #157347;
+            color: #ffffff;
+            transform: translateY(-1px);
+        }
+
+    .laporan-btn {
+        height: 40px;
+        padding: 0 18px;
+        border: none;
+        border-radius: 6px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        font-family: inherit;
+        font-size: 13px;
+        font-weight: 600;
+        text-decoration: none;
+        cursor: pointer;
+        white-space: nowrap;
+    }
+
+    .laporan-btn-primary {
+        background: #197bd1;
+        color: #ffffff;
+    }
+
+        .laporan-btn-primary:hover {
+            background: #1268b4;
+        }
+
+    .laporan-btn-light {
+        background: #edf3f8;
+        color: #174a7d;
+    }
+
+        .laporan-btn-light:hover {
+            background: #e1eaf2;
+        }
+
+
+    /* =====================================================
+           STATISTIK
+        ===================================================== */
+
+    .laporan-stat-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 14px;
+    }
+
+    .laporan-stat-card {
+        position: relative;
+        min-height: 115px;
+        padding: 18px;
+        overflow: hidden;
+    }
+
+    .laporan-stat-label {
+        display: block;
+        color: #60758c;
+        font-size: 12px;
+        margin-bottom: 8px;
+    }
+
+    .laporan-stat-number {
+        display: block;
+        color: #073b78;
+        font-size: 28px;
+        line-height: 1;
+        font-weight: 700;
+    }
+
+    .laporan-stat-description {
+        display: block;
+        margin-top: 7px;
+        color: #8492a6;
+        font-size: 11px;
+    }
+
+
+    /* =====================================================
+           CHART GRID
+        ===================================================== */
+
+    .laporan-chart-grid {
+        display: grid;
+        grid-template-columns: 1.65fr 1fr;
+        gap: 20px;
+    }
+
+    .laporan-chart-card {
+        padding: 20px;
+        min-height: 340px;
+    }
+
+    .laporan-chart-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+        .laporan-chart-header h2 {
+            margin: 0;
+            color: #123f73;
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .laporan-chart-header span {
+            color: #72839a;
+            font-size: 11px;
+        }
+
+
+    /* =====================================================
+           BAR CHART
+        ===================================================== */
+
+    .laporan-bar-chart {
+        height: 240px;
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-around;
+        gap: 12px;
+        padding: 20px 10px 0;
+        border-bottom: 1px solid #dce5ef;
+    }
+
+    .laporan-bar-item {
+        position: relative;
+        flex: 1;
+        max-width: 90px;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        align-items: center;
+    }
+
+    .laporan-bar-wrapper {
+        position: relative;
+        width: 100%;
+        height: 190px;
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+    }
+
+    .laporan-bar {
+        width: 34px;
+        min-height: 4px;
+        background: #2384d8;
+        border-radius: 5px 5px 0 0;
+        transition: .2s;
+        cursor: pointer;
+        position: relative;
+    }
+
+        .laporan-bar:hover {
+            background: #1268b4;
+        }
+
+
+    /* TOOLTIP */
+
+    .laporan-tooltip {
+        position: absolute;
+        left: 50%;
+        bottom: calc(100% + 8px);
+        transform: translateX(-50%);
+        min-width: 110px;
+        padding: 8px 10px;
+        border-radius: 6px;
+        background: #173b6d;
+        color: white;
+        text-align: center;
+        font-size: 11px;
+        opacity: 0;
+        pointer-events: none;
+        transition: .15s;
+        z-index: 10;
+    }
+
+        .laporan-tooltip strong {
+            display: block;
+            font-size: 12px;
+        }
+
+        .laporan-tooltip span {
+            display: block;
+            margin-top: 3px;
+            opacity: .85;
+        }
+
+    .laporan-bar:hover .laporan-tooltip {
+        opacity: 1;
+    }
+
+
+    .laporan-bar-label {
+        width: 100%;
+        margin-top: 8px;
+        color: #60758c;
+        font-size: 10px;
+        text-align: center;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+
+    /* =====================================================
+           EMPTY CHART
+        ===================================================== */
+
+    .laporan-empty {
+        min-height: 230px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #8292a5;
+        font-size: 13px;
+        text-align: center;
+    }
+
+
+    /* =====================================================
+           DONUT
+        ===================================================== */
+
+    .laporan-status-content {
+        min-height: 240px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 30px;
+    }
+
+    .laporan-donut {
+        width: 155px;
+        height: 155px;
+        border-radius: 50%;
+        position: relative;
+        flex-shrink: 0;
+    }
+
+        .laporan-donut::after {
+            content: "";
+            position: absolute;
+            width: 92px;
+            height: 92px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            background: #ffffff;
+        }
+
+    .laporan-donut-center {
+        position: absolute;
+        inset: 0;
+        z-index: 2;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+        .laporan-donut-center strong {
+            color: #073b78;
+            font-size: 23px;
+        }
+
+        .laporan-donut-center span {
+            margin-top: 3px;
+            color: #8291a5;
+            font-size: 10px;
+        }
+
+
+    /* =====================================================
+           LEGEND
+        ===================================================== */
+
+    .laporan-legend {
+        min-width: 145px;
+    }
+
+    .laporan-legend-item {
+        display: grid;
+        grid-template-columns: 10px 1fr auto;
+        gap: 8px;
+        align-items: center;
+        margin-bottom: 13px;
+        color: #60758c;
+        font-size: 11px;
+    }
+
+        .laporan-legend-item strong {
+            color: #173b6d;
+            font-weight: 600;
+        }
+
+    .laporan-legend-value {
+        color: #173b6d;
+        font-weight: 600;
+    }
+
+    .laporan-dot {
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+    }
+
+    .laporan-dot-blue {
+        background: #2384d8;
+    }
+
+    .laporan-dot-orange {
+        background: #f19a17;
+    }
+
+    .laporan-dot-green {
+        background: #22a56f;
+    }
+
+
+    /* =====================================================
+           TABLE
+        ===================================================== */
+
+    .laporan-table-card {
+        overflow: hidden;
+    }
+
+    .laporan-table-header {
+        min-height: 70px;
+        padding: 0 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 1px solid #dce5ef;
+    }
+
+        .laporan-table-header h2 {
+            margin: 0;
+            color: #123f73;
+            font-size: 16px;
+        }
+
+    .laporan-table-actions {
+        display: flex;
+        gap: 8px;
+    }
+
+    .laporan-table-wrapper {
+        width: 100%;
+        overflow-x: auto;
+    }
+
+    .laporan-table {
+        width: 100%;
+        min-width: 850px;
+        border-collapse: collapse;
+    }
+
+        .laporan-table th {
+            height: 45px;
+            padding: 0 12px;
+            background: #f0f5fa;
+            border-bottom: 1px solid #d5e0eb;
+            color: #34577d;
+            font-size: 11px;
+            font-weight: 700;
+            text-align: left;
+            white-space: nowrap;
+        }
+
+        .laporan-table td {
+            min-height: 48px;
+            padding: 11px 12px;
+            border-bottom: 1px solid #e7edf3;
+            color: #52657a;
+            font-size: 12px;
+            vertical-align: middle;
+        }
+
+        .laporan-table tbody tr:hover {
+            background: #f8fbfe;
+        }
+
+        .laporan-table td strong {
+            color: #173f73;
+        }
+
+
+    /* =====================================================
+           STATUS
+        ===================================================== */
+
+    .laporan-status {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 25px;
+        padding: 0 9px;
+        border-radius: 20px;
+        font-size: 10px;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .laporan-status-menunggu {
+        background: #e9f3ff;
+        color: #1874c1;
+    }
+
+    .laporan-status-dilayani {
+        background: #fff3df;
+        color: #c87900;
+    }
+
+    .laporan-status-selesai {
+        background: #e5f7ef;
+        color: #16865b;
+    }
+
+    .laporan-status-default {
+        background: #edf1f5;
+        color: #657789;
+    }
+
+
+    /* =====================================================
+           TABLE FOOTER
+        ===================================================== */
+
+    .laporan-table-footer {
+        padding: 14px 20px;
+        color: #8292a5;
+        font-size: 11px;
+    }
+
+
+    /* =====================================================
+           RESPONSIVE
+        ===================================================== */
+
+    @@media (max-width: 1200px) {
+
+        .laporan-filter-grid {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .laporan-filter-buttons {
+            grid-column: span 2;
+            justify-content: flex-end;
+        }
+
+        .laporan-stat-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        .laporan-chart-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+
+    @@media (max-width: 750px) {
+
+        .laporan-filter-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .laporan-filter-buttons {
+            grid-column: auto;
+            justify-content: flex-start;
+        }
+
+        .laporan-stat-grid {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .laporan-status-content {
+            flex-direction: column;
+            padding: 20px 0;
+        }
+
+        .laporan-table-header {
+            align-items: flex-start;
+            flex-direction: column;
+            gap: 12px;
+            padding: 18px 20px;
+        }
+
+        .laporan-chart-card {
+            padding: 15px;
+        }
+    }
+
+
+    @@media (max-width: 480px) {
+
+        .laporan-stat-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .laporan-filter-buttons {
+            width: 100%;
+        }
+
+            .laporan-filter-buttons .laporan-btn {
+                flex: 1;
+            }
+    }
+
+
+    /* =====================================================
+           PRINT
+        ===================================================== */
+
+    @@media print {
+
+        .sidebar,
+        .header,
+        .topbar,
+        .topbar-right {
+            display: none !important;
+        }
+
+        .main,
+        .main-content {
+            margin: 0 !important;
+            width: 100% !important;
+        }
+
+        .laporan-filter,
+        .laporan-chart-grid {
+            display: none !important;
+        }
+
+        .laporan-content {
+            gap: 15px;
+        }
+
+        .laporan-stat-grid {
+            grid-template-columns: repeat(5, 1fr);
+        }
+
+        .laporan-table-card {
+            box-shadow: none;
+            border: 1px solid #cfd8e2;
+        }
+
+        .laporan-table {
+            min-width: 0;
+        }
+
+        .laporan-table-actions {
+            display: none;
+        }
+    }
+
+</style>
+
+
+<!-- =========================================================
+     KONTEN LAPORAN
+========================================================= -->
+
+<section class="laporan-content">
+
+
+    <!-- =====================================================
+         FILTER LAPORAN
+    ====================================================== -->
+
+    <div class="laporan-card laporan-filter">
+
+        <h2 class="laporan-section-title">
+            Filter Laporan
+        </h2>
+
+
+        <form method="get">
+
+            <div class="laporan-filter-grid">
+
+
+                <!-- PERIODE MULAI -->
+
+                <div class="laporan-field">
+
+                    <label for="TanggalMulai">
+                        Periode Mulai
+                    </label>
+
+                    <input type="date"
+                           id="TanggalMulai"
+                           name="TanggalMulai"
+                           value="@Model.TanggalMulai?.ToString("yyyy-MM-dd")" />
+
+                </div>
+
+
+                <!-- PERIODE SELESAI -->
+
+                <div class="laporan-field">
+
+                    <label for="TanggalSelesai">
+                        Periode Selesai
+                    </label>
+
+                    <input type="date"
+                           id="TanggalSelesai"
+                           name="TanggalSelesai"
+                           value="@Model.TanggalSelesai?.ToString("yyyy-MM-dd")" />
+
+                </div>
+
+
+                <!-- KEPERLUAN -->
+
+                <div class="laporan-field">
+
+                    <label for="KeperluanFilter">
+                        Keperluan
+                    </label>
+
+                    <select id="KeperluanFilter"
+                            name="KeperluanFilter">
+
+                        <option value="">
+                            Semua
+                        </option>
+
+                        @foreach (var item in Model.DaftarKeperluan)
+                        {
+                            if (Model.KeperluanFilter == item)
+                            {
+                                <option value="@item" selected>
+                                    @item
+                                </option>
+                            }
+                            else
+                            {
+                                <option value="@item">
+                                    @item
+                                </option>
+                            }
+                        }
+
+                    </select>
+
+                </div>
+
+
+                <!-- INSTANSI -->
+
+                <div class="laporan-field">
+
+                    <label for="InstansiFilter">
+                        Instansi
+                    </label>
+
+                    <select id="InstansiFilter"
+                            name="InstansiFilter">
+
+                        <option value="">
+                            Semua
+                        </option>
+
+                        @foreach (var item in Model.DaftarInstansi)
+                        {
+                            if (Model.InstansiFilter == item)
+                            {
+                                <option value="@item" selected>
+                                    @item
+                                </option>
+                            }
+                            else
+                            {
+                                <option value="@item">
+                                    @item
+                                </option>
+                            }
+                        }
+
+                    </select>
+
+                </div>
+
+
+                <!-- BUTTON -->
+
+                <div class="laporan-filter-buttons">
+
+                    <a href="/Laporan"
+                       class="laporan-btn laporan-btn-light">
+                        Reset
+                    </a>
+
+                    <button type="submit"
+                            class="laporan-btn laporan-btn-primary">
+                        Tampilkan
+                    </button>
+
+                </div>
+
+            </div>
+
+        </form>
+
+    </div>
+
+
+    <!-- =====================================================
+         STATISTIK
+    ====================================================== -->
+
+    <div class="laporan-stat-grid">
+
+
+        <div class="laporan-card laporan-stat-card">
+
+            <span class="laporan-stat-label">
+                Total Kunjungan
+            </span>
+
+            <strong class="laporan-stat-number">
+                @Model.TotalKunjungan
+            </strong>
+
+            <span class="laporan-stat-description">
+                Total berdasarkan filter
+            </span>
+
+        </div>
+
+
+        <div class="laporan-card laporan-stat-card">
+
+            <span class="laporan-stat-label">
+                Aktivitas Teknis
+            </span>
+
+            <strong class="laporan-stat-number">
+                @Model.TotalTeknis
+            </strong>
+
+            <span class="laporan-stat-description">
+                Kunjungan teknis
+            </span>
+
+        </div>
+
+
+        <div class="laporan-card laporan-stat-card">
+
+            <span class="laporan-stat-label">
+                Bimbingan Teknis
+            </span>
+
+            <strong class="laporan-stat-number">
+                @Model.TotalBimbingan
+            </strong>
+
+            <span class="laporan-stat-description">
+                Kegiatan bimbingan
+            </span>
+
+        </div>
+
+
+        <div class="laporan-card laporan-stat-card">
+
+            <span class="laporan-stat-label">
+                Konsultasi
+            </span>
+
+            <strong class="laporan-stat-number">
+                @Model.TotalKonsultasi
+            </strong>
+
+            <span class="laporan-stat-description">
+                Kegiatan konsultasi
+            </span>
+
+        </div>
+
+
+        <div class="laporan-card laporan-stat-card">
+
+            <span class="laporan-stat-label">
+                Lainnya
+            </span>
+
+            <strong class="laporan-stat-number">
+                @Model.TotalLainnya
+            </strong>
+
+            <span class="laporan-stat-description">
+                Keperluan lainnya
+            </span>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         GRAFIK
+    ====================================================== -->
+
+    <div class="laporan-chart-grid">
+
+
+        <!-- BAR CHART -->
+
+        <div class="laporan-card laporan-chart-card">
+
+            <div class="laporan-chart-header">
+
+                <h2>
+                    Grafik Kunjungan per Keperluan
+                </h2>
+
+                <span>
+                    @Model.TotalKunjungan Total Data
+                </span>
+
+            </div>
+
+
+            @if (Model.GrafikKeperluan.Any())
+            {
+
+                <div class="laporan-bar-chart">
+
+                    @foreach (var item in Model.GrafikKeperluan)
+                    {
+
+                        var tinggi =
+                            maxGrafik > 0
+                                ? ((double)item.Value / maxGrafik) * 170
+                                : 0;
+
+
+                        <div class="laporan-bar-item">
+
+                            <div class="laporan-bar-wrapper">
+
+                                <div class="laporan-bar"
+                                     style="height:@tinggi.ToString("0")px;">
+
+                                    <div class="laporan-tooltip">
+
+                                        <strong>
+                                            @item.Value orang
+                                        </strong>
+
+                                        <span>
+                                            @item.Label
+                                        </span>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="laporan-bar-label"
+                                 title="@item.Label">
+
+                                @item.Label
+
+                            </div>
+
+                        </div>
+
+                    }
+
+                </div>
+
+            }
+            else
+            {
+
+                <div class="laporan-empty">
+                    Belum ada data untuk ditampilkan.
+                </div>
+
+            }
+
+        </div>
+
+
+        <!-- DONUT STATUS -->
+
+        <div class="laporan-card laporan-chart-card">
+
+            <div class="laporan-chart-header">
+
+                <h2>
+                    Persentase Status Kunjungan
+                </h2>
+
+            </div>
+
+
+            <div class="laporan-status-content">
+
+
+                <div class="laporan-donut"
+                     style="
+                    background:
+                    conic-gradient(
+                    #2384d8 0% @persenMenunggu%,
+                    #f19a17 @persenMenunggu% @(persenMenunggu + persenDilayani)%,
+                    #22a56f @(persenMenunggu + persenDilayani)% 100%
+                    );
+                    ">
+
+                    <div class="laporan-donut-center">
+
+                        <strong>
+                            @Model.TotalKunjungan
+                        </strong>
+
+                        <span>
+                            Total
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <div class="laporan-legend">
+
+
+                    <div class="laporan-legend-item">
+
+                        <span class="laporan-dot laporan-dot-blue"></span>
+
+                        <span>
+                            Menunggu
+                        </span>
+
+                        <span class="laporan-legend-value">
+                            @Model.TotalMenunggu
+                        </span>
+
+                    </div>
+
+
+                    <div class="laporan-legend-item">
+
+                        <span class="laporan-dot laporan-dot-orange"></span>
+
+                        <span>
+                            Sedang Dilayani
+                        </span>
+
+                        <span class="laporan-legend-value">
+                            @Model.TotalDilayani
+                        </span>
+
+                    </div>
+
+
+                    <div class="laporan-legend-item">
+
+                        <span class="laporan-dot laporan-dot-green"></span>
+
+                        <span>
+                            Selesai
+                        </span>
+
+                        <span class="laporan-legend-value">
+                            @Model.TotalSelesai
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         DATA LAPORAN
+    ====================================================== -->
+
+    <div class="laporan-card laporan-table-card">
+
+
+        <div class="laporan-table-header">
+
+            <h2>
+                Data Laporan Kunjungan
+            </h2>
+
+
+            <div class="laporan-table-actions">
+
+                <a asp-page="/LaporanCetak"
+                   asp-route-tanggalMulai="@Model.TanggalMulai?.ToString("yyyy-MM-dd")"
+                   asp-route-tanggalSelesai="@Model.TanggalSelesai?.ToString("yyyy-MM-dd")"
+                   asp-route-keperluanFilter="@Model.KeperluanFilter"
+                   asp-route-instansiFilter="@Model.InstansiFilter"
+                   target="_blank"
+                   rel="noopener"
+                   class="btn btn-print">
+
+                    <span class="btn-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M6 9V4h12v5" />
+                            <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
+                            <path d="M6 14h12v6H6z" />
+                        </svg>
+                    </span>
+
+                    <span>Cetak PDF</span>
+
+                </a>
+
+                <a asp-page-handler="ExportExcel"
+                   asp-route-DariTanggal="@Model.DariTanggal?.ToString("yyyy-MM-dd")"
+                   asp-route-SampaiTanggal="@Model.SampaiTanggal?.ToString("yyyy-MM-dd")"
+                   asp-route-KeperluanFilter="@Model.KeperluanFilter"
+                   asp-route-InstansiFilter="@Model.InstansiFilter"
+                   class="btn btn-excel">
+
+                    ↓ &nbsp; Export Excel
+
+                </a>
+            </div>
+
+        </div>
+
+
+        <div class="laporan-table-wrapper">
+
+            <table class="laporan-table">
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            No
+                        </th>
+
+                        <th>
+                            Nama
+                        </th>
+
+                        <th>
+                            Instansi / Asal
+                        </th>
+
+                        <th>
+                            Keperluan
+                        </th>
+
+                        <th>
+                            Jam Datang
+                        </th>
+
+                        <th>
+                            Jam Selesai
+                        </th>
+
+                        <th>
+                            Durasi
+                        </th>
+
+                        <th>
+                            Status
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    @if (Model.DataLaporan.Any())
+                    {
+
+                        var nomor = 1;
+
+
+                        foreach (var item in Model.DataLaporan)
+                        {
+
+                            <tr>
+
+                                <td>
+                                    @nomor
+                                </td>
+
+
+                                <td>
+
+                                    <strong>
+                                        @item.Nama
+                                    </strong>
+
+                                </td>
+
+
+                                <td>
+                                    @item.Instansi
+                                </td>
+
+
+                                <td>
+                                    @item.Keperluan
+                                </td>
+
+
+                                <td>
+                                    @item.WaktuDatang.ToString("HH:mm")
+                                </td>
+
+
+                                <td>
+
+                                    @if (item.WaktuSelesai.HasValue)
+                                    {
+                                        @item.WaktuSelesai.Value.ToString("HH:mm")
+                                    }
+                                    else
+                                    {
+                                        <span>-</span>
+                                    }
+
+                                </td>
+
+
+                                <td>
+
+                                    @if (item.Durasi.HasValue)
+                                    {
+                                        @($"{item.Durasi.Value} menit")
+                                    }
+                                    else
+                                    {
+                                        <span>-</span>
+                                    }
+
+                                </td>
+
+
+                                <td>
+
+                                    @if (item.Status == "Menunggu")
+                                    {
+                                        <span class="laporan-status laporan-status-menunggu">
+                                            Menunggu
+                                        </span>
+                                    }
+                                    else if (item.Status == "Sedang Dilayani")
+                                    {
+                                        <span class="laporan-status laporan-status-dilayani">
+                                            Sedang Dilayani
+                                        </span>
+                                    }
+                                    else if (item.Status == "Selesai")
+                                    {
+                                        <span class="laporan-status laporan-status-selesai">
+                                            Selesai
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="laporan-status laporan-status-default">
+                                            @item.Status
+                                        </span>
+                                    }
+
+                                </td>
+
+                            </tr>
+
+
+                            nomor++;
+
+                        }
+
+                    }
+                    else
+                    {
+
+                        <tr>
+
+                            <td colspan="8"
+                                class="laporan-empty">
+
+                                Tidak ada data kunjungan berdasarkan
+                                filter yang dipilih.
+
+                            </td>
+
+                        </tr>
+
+                    }
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+        <div class="laporan-table-footer">
+
+            Menampilkan
+            @Model.DataLaporan.Count
+            data kunjungan
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =========================================================
+     JAVASCRIPT
+========================================================= -->
+
+<script>
+
+    const tanggalMulai =
+        document.getElementById("TanggalMulai");
+
+    const tanggalSelesai =
+        document.getElementById("TanggalSelesai");
+
+
+    if (tanggalMulai && tanggalSelesai) {
+
+        tanggalMulai.addEventListener("change", function() {
+
+            tanggalSelesai.min =
+                tanggalMulai.value;
+
+        });
+
+
+        if (tanggalMulai.value) {
+
+            tanggalSelesai.min =
+                tanggalMulai.value;
+
+        }
+
+    }
+
+</script>

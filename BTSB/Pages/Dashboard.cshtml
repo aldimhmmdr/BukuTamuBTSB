@@ -1,0 +1,716 @@
+@page
+@model BTSB.Pages.DashboardModel
+
+@{
+    ViewData["Title"] = "Dashboard";
+    ViewData["PageTitle"] = "Dashboard";
+    ViewData["PageDescription"] = "Monitoring kunjungan Balai Teknik Sains Bangunan";
+    Layout = "_AdminLayout";
+}
+
+<style>
+    /* =========================================================
+           DASHBOARD
+           ========================================================= */
+
+    .dashboard {
+        width: 100%;
+    }
+
+    /* =========================================================
+           STATISTIC CARDS
+           ========================================================= */
+
+    .dashboard-stat-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 18px;
+        margin-bottom: 24px;
+    }
+
+    .dashboard-stat-card {
+        background: #ffffff;
+        border: 1px solid #dce5ef;
+        border-radius: 10px;
+        padding: 22px;
+        min-height: 125px;
+        box-shadow: 0 2px 7px rgba(20, 50, 80, 0.04);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .dashboard-stat-label {
+        color: #58708c;
+        font-size: 12px;
+        font-weight: 500;
+        margin-bottom: 6px;
+    }
+
+    .dashboard-stat-number {
+        color: #073d78;
+        font-size: 30px;
+        font-weight: 700;
+        line-height: 1.2;
+    }
+
+    .dashboard-stat-description {
+        margin-top: 5px;
+        color: #8492a6;
+        font-size: 11px;
+    }
+
+
+    /* =========================================================
+           CHART GRID
+           ========================================================= */
+
+    .dashboard-chart-grid {
+        display: grid;
+        grid-template-columns: 1.65fr 1fr;
+        gap: 20px;
+    }
+
+    .dashboard-panel {
+        background: #ffffff;
+        border: 1px solid #dce5ef;
+        border-radius: 10px;
+        box-shadow: 0 2px 7px rgba(20, 50, 80, 0.04);
+        padding: 20px;
+        min-width: 0;
+    }
+
+    .dashboard-panel-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 20px;
+    }
+
+        .dashboard-panel-header h2 {
+            margin: 0;
+            color: #123f76;
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .dashboard-panel-header span {
+            color: #72839a;
+            font-size: 11px;
+        }
+
+
+    /* =========================================================
+           BAR CHART
+           ========================================================= */
+
+    .dashboard-bar-chart {
+        height: 230px;
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-around;
+        gap: 14px;
+        padding: 15px 10px 0;
+        border-bottom: 1px solid #dfe6ef;
+    }
+
+    .dashboard-bar-wrapper {
+        position: relative;
+        flex: 1;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        align-items: center;
+        min-width: 0;
+    }
+
+    .dashboard-bar {
+        width: 32px;
+        min-height: 4px;
+        max-height: 180px;
+        background: #2384d8;
+        border-radius: 5px 5px 0 0;
+        transition: background 0.2s ease, transform 0.2s ease;
+    }
+
+        .dashboard-bar:hover {
+            background: #1268b4;
+            transform: scaleX(1.08);
+        }
+
+    .dashboard-bar-label {
+        margin-top: 8px;
+        color: #60758c;
+        font-size: 10px;
+        white-space: nowrap;
+    }
+
+
+    /* =========================================================
+           TOOLTIP
+           ========================================================= */
+
+    .dashboard-tooltip {
+        position: absolute;
+        bottom: calc(100% - 8px);
+        left: 50%;
+        transform: translateX(-50%) translateY(8px);
+        min-width: 125px;
+        padding: 8px 10px;
+        background: #173b6d;
+        color: #ffffff;
+        border-radius: 6px;
+        font-size: 10px;
+        text-align: center;
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        transition: opacity 0.15s ease, transform 0.15s ease, visibility 0.15s ease;
+        z-index: 20;
+    }
+
+        .dashboard-tooltip strong {
+            display: block;
+            font-size: 10px;
+            font-weight: 600;
+        }
+
+        .dashboard-tooltip span {
+            display: block;
+            margin-top: 3px;
+            opacity: 0.9;
+        }
+
+    .dashboard-bar-wrapper:hover .dashboard-tooltip {
+        opacity: 1;
+        visibility: visible;
+        transform: translateX(-50%) translateY(0);
+    }
+
+
+    /* =========================================================
+           DONUT CHART
+           ========================================================= */
+
+    .dashboard-status-content {
+        min-height: 230px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 30px;
+    }
+
+    .dashboard-donut {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .dashboard-donut-center {
+        width: 94px;
+        height: 94px;
+        border-radius: 50%;
+        background: #ffffff;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+        .dashboard-donut-center strong {
+            color: #073d78;
+            font-size: 23px;
+            line-height: 1;
+        }
+
+        .dashboard-donut-center span {
+            margin-top: 4px;
+            color: #8091a7;
+            font-size: 10px;
+        }
+
+
+    /* =========================================================
+           STATUS LEGEND
+           ========================================================= */
+
+    .dashboard-status-legend {
+        min-width: 150px;
+    }
+
+    .dashboard-legend-item {
+        display: grid;
+        grid-template-columns: 10px 1fr auto;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 15px;
+        color: #60758c;
+        font-size: 11px;
+    }
+
+        .dashboard-legend-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .dashboard-legend-item strong {
+            color: #173b6d;
+            font-weight: 600;
+        }
+
+    .dashboard-dot {
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+    }
+
+        .dashboard-dot.waiting {
+            background: #2384d8;
+        }
+
+        .dashboard-dot.serving {
+            background: #f39213;
+        }
+
+        .dashboard-dot.completed {
+            background: #18a36d;
+        }
+
+
+    /* =========================================================
+           RESPONSIVE
+           ========================================================= */
+
+    @@media (max-width: 1100px) {
+
+        .dashboard-stat-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .dashboard-chart-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @@media (max-width: 700px) {
+
+        .dashboard-stat-grid {
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .dashboard-stat-card {
+            padding: 18px;
+        }
+
+        .dashboard-chart-grid {
+            gap: 15px;
+        }
+
+        .dashboard-status-content {
+            flex-direction: column;
+            gap: 20px;
+            padding: 10px 0;
+        }
+
+        .dashboard-status-legend {
+            width: 100%;
+            max-width: 220px;
+        }
+    }
+
+    @@media (max-width: 500px) {
+
+        .dashboard-stat-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .dashboard-panel {
+            padding: 15px;
+        }
+
+        .dashboard-panel-header {
+            align-items: flex-start;
+            gap: 10px;
+            flex-direction: column;
+        }
+
+        .dashboard-bar-chart {
+            gap: 5px;
+            padding-left: 2px;
+            padding-right: 2px;
+        }
+
+        .dashboard-bar {
+            width: 24px;
+        }
+
+        .dashboard-bar-label {
+            font-size: 9px;
+        }
+    }
+</style>
+
+
+<div class="dashboard">
+
+    <!-- =====================================================
+         STATISTICS
+         ===================================================== -->
+
+    <div class="dashboard-stat-grid">
+
+        <!-- TOTAL KUNJUNGAN -->
+        <div class="dashboard-stat-card">
+            <div class="dashboard-stat-label">
+                Total Kunjungan
+            </div>
+
+            <div class="dashboard-stat-number" id="dashboardTotalKunjungan">
+                @Model.TotalKunjungan
+            </div>
+
+            <div class="dashboard-stat-description">
+                Hari ini
+            </div>
+        </div>
+
+
+        <!-- MENUNGGU -->
+        <div class="dashboard-stat-card">
+            <div class="dashboard-stat-label">
+                Menunggu
+            </div>
+
+            <div class="dashboard-stat-number" id="dashboardMenunggu">
+                @Model.Menunggu
+            </div>
+
+            <div class="dashboard-stat-description">
+                Perlu dilayani
+            </div>
+        </div>
+
+
+        <!-- SEDANG DILAYANI -->
+        <div class="dashboard-stat-card">
+            <div class="dashboard-stat-label">
+                Sedang Dilayani
+            </div>
+
+            <div class="dashboard-stat-number" id="dashboardSedangDilayani">
+                @Model.SedangDilayani
+            </div>
+
+            <div class="dashboard-stat-description">
+                Saat ini
+            </div>
+        </div>
+
+
+        <!-- SELESAI -->
+        <div class="dashboard-stat-card">
+            <div class="dashboard-stat-label">
+                Selesai
+            </div>
+
+            <div class="dashboard-stat-number" id="dashboardSelesai">
+                @Model.Selesai
+            </div>
+
+            <div class="dashboard-stat-description">
+                Hari ini
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         CHART SECTION
+         ===================================================== -->
+
+    <div class="dashboard-chart-grid">
+
+        <!-- =================================================
+             GRAFIK KUNJUNGAN 7 HARI
+             ================================================= -->
+
+        <div class="dashboard-panel">
+
+            <div class="dashboard-panel-header">
+
+                <h2>
+                    Grafik Kunjungan 7 Hari Terakhir
+                </h2>
+
+                <span>
+                    @Model.PeriodeGrafik
+                </span>
+
+            </div>
+
+
+            <div class="dashboard-bar-chart">
+
+                @foreach (var item in Model.GrafikKunjungan)
+                {
+                    <div class="dashboard-bar-wrapper" data-dashboard-bar>
+
+                        <!-- TOOLTIP -->
+                        <div class="dashboard-tooltip">
+
+                            <strong>
+                                @item.Tanggal
+                            </strong>
+
+                            <span>
+                                Total: @item.Jumlah orang
+                            </span>
+
+                        </div>
+
+
+                        <!-- BAR -->
+                        <div class="dashboard-bar"
+                             style="height: @item.TinggiBar%;">
+                        </div>
+
+
+                        <!-- TANGGAL -->
+                        <span class="dashboard-bar-label">
+                            @item.Tanggal
+                        </span>
+
+                    </div>
+                }
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             STATUS KUNJUNGAN
+             ================================================= -->
+
+        <div class="dashboard-panel">
+
+            <div class="dashboard-panel-header">
+
+                <h2>
+                    Status Kunjungan Hari Ini
+                </h2>
+
+            </div>
+
+
+            <div class="dashboard-status-content">
+
+                <!-- DONUT -->
+                <div class="dashboard-donut"
+                 id="dashboardDonut"
+                 style="background: @Model.DonutStyle;">
+
+                    <div class="dashboard-donut-center">
+
+                        <strong id="dashboardDonutTotal">
+                            @Model.TotalKunjungan
+                        </strong>
+
+                        <span>
+                            Total
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <!-- LEGEND -->
+                <div class="dashboard-status-legend">
+
+                    <!-- MENUNGGU -->
+                    <div class="dashboard-legend-item">
+
+                        <span class="dashboard-dot waiting"></span>
+
+                        <span>
+                            Menunggu
+                        </span>
+
+                        <strong id="dashboardLegendMenunggu">
+                            @Model.Menunggu
+                        </strong>
+
+                    </div>
+
+
+                    <!-- SEDANG DILAYANI -->
+                    <div class="dashboard-legend-item">
+
+                        <span class="dashboard-dot serving"></span>
+
+                        <span>
+                            Sedang Dilayani
+                        </span>
+
+                        <strong id="dashboardLegendSedangDilayani">
+                            @Model.SedangDilayani
+                        </strong>
+
+                    </div>
+
+
+                    <!-- SELESAI -->
+                    <div class="dashboard-legend-item">
+
+                        <span class="dashboard-dot completed"></span>
+
+                        <span>
+                            Selesai
+                        </span>
+
+                        <strong id="dashboardLegendSelesai">
+                            @Model.Selesai
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+@section Scripts {
+
+    <script>
+
+        document.addEventListener("DOMContentLoaded", function () {
+
+            const realtimeUrl = "/Dashboard?handler=Realtime";
+            const pollingInterval = 3000;
+
+            async function updateDashboard() {
+
+                try {
+
+                    const response = await fetch(
+                        realtimeUrl,
+                        {
+                            method: "GET",
+                            cache: "no-store",
+                            headers: {
+                                "X-Requested-With": "XMLHttpRequest"
+                            }
+                        }
+                    );
+
+                    if (!response.ok) {
+                        return;
+                    }
+
+                    const data = await response.json();
+
+                    const total = document.getElementById("dashboardTotalKunjungan");
+                    const menunggu = document.getElementById("dashboardMenunggu");
+                    const sedangDilayani = document.getElementById("dashboardSedangDilayani");
+                    const selesai = document.getElementById("dashboardSelesai");
+                    const donut = document.getElementById("dashboardDonut");
+                    const donutTotal = document.getElementById("dashboardDonutTotal");
+                    const sidebarBadge = document.getElementById("adminSidebarNotificationBadge");
+                    const headerBadge = document.getElementById("adminHeaderNotificationBadge");
+                    const legendMenunggu = document.getElementById("dashboardLegendMenunggu");
+                    const legendSedangDilayani = document.getElementById("dashboardLegendSedangDilayani");
+                    const legendSelesai = document.getElementById("dashboardLegendSelesai");
+
+                    if (total) total.textContent = data.totalKunjungan;
+                    if (menunggu) menunggu.textContent = data.menunggu;
+                    if (sedangDilayani) sedangDilayani.textContent = data.sedangDilayani;
+                    if (selesai) selesai.textContent = data.selesai;
+
+                    if (donut) donut.style.background = data.donutStyle;
+                    if (donutTotal) donutTotal.textContent = data.totalKunjungan;
+
+                    if (typeof data.totalNotifikasi === "number") {
+
+                        const displayCount =
+                            data.totalNotifikasi > 99
+                                ? "99+"
+                                : data.totalNotifikasi.toString();
+
+                        [sidebarBadge, headerBadge].forEach(function (badge) {
+
+                            if (!badge) return;
+
+                            badge.textContent = displayCount;
+                            badge.style.display =
+                                data.totalNotifikasi > 0
+                                    ? "inline-flex"
+                                    : "none";
+
+                        });
+                    }
+                    if (legendMenunggu) legendMenunggu.textContent = data.menunggu;
+                    if (legendSedangDilayani) legendSedangDilayani.textContent = data.sedangDilayani;
+                    if (legendSelesai) legendSelesai.textContent = data.selesai;
+
+                    const bars = document.querySelectorAll("[data-dashboard-bar]");
+
+                    if (Array.isArray(data.grafik)) {
+
+                        data.grafik.forEach(function (item, index) {
+
+                            const wrapper = bars[index];
+
+                            if (!wrapper) return;
+
+                            const bar = wrapper.querySelector(".dashboard-bar");
+                            const label = wrapper.querySelector(".dashboard-bar-label");
+                            const tooltipTitle = wrapper.querySelector(".dashboard-tooltip strong");
+                            const tooltipTotal = wrapper.querySelector(".dashboard-tooltip span");
+
+                            if (bar) {
+                                bar.style.height = item.tinggiBar + "%";
+                            }
+
+                            if (label) {
+                                label.textContent = item.tanggal;
+                            }
+
+                            if (tooltipTitle) {
+                                tooltipTitle.textContent = item.tanggal;
+                            }
+
+                            if (tooltipTotal) {
+                                tooltipTotal.textContent = "Total: " + item.jumlah + " orang";
+                            }
+
+                        });
+                    }
+
+                } catch (error) {
+                    // Jika server/database sementara tidak dapat diakses,
+                    // dashboard tetap menggunakan data terakhir yang tampil.
+                    console.warn("Realtime dashboard gagal diperbarui.", error);
+                }
+            }
+
+            updateDashboard();
+            setInterval(updateDashboard, pollingInterval);
+
+        });
+
+    </script>
+
+}
+

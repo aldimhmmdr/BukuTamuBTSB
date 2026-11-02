@@ -1,0 +1,569 @@
+﻿@page
+@model BTSB.Pages.DetailKunjunganModel
+
+@{
+    ViewData["Title"] = "Detail Kunjungan";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Detail Kunjungan - BTSB</title>
+
+    <link rel="stylesheet" href="~/css/site.css" />
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f4f7fb;
+            color: #123b6d;
+        }
+
+        .detail-page {
+            min-height: 100vh;
+            display: flex;
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            width: 245px;
+            min-height: 100vh;
+            background: #10447f;
+            color: white;
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-brand {
+            height: 168px;
+            padding: 22px 20px;
+            border-bottom: 1px solid rgba(255,255,255,.15);
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .brand-logo {
+            width: 40px;
+            height: 40px;
+            border-radius: 6px;
+            background: #ffc928;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #10447f;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .brand-text strong {
+            display: block;
+            font-size: 18px;
+            margin-top: 2px;
+        }
+
+        .brand-text small {
+            display: block;
+            margin-top: 5px;
+            font-size: 11px;
+            opacity: .8;
+        }
+
+        .menu-title {
+            font-size: 11px;
+            font-weight: bold;
+            opacity: .65;
+            padding: 27px 20px 10px;
+        }
+
+        .menu {
+            padding: 0 14px;
+        }
+
+        .menu a {
+            height: 46px;
+            margin-bottom: 5px;
+            padding: 0 18px;
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            border-radius: 7px;
+            font-size: 14px;
+        }
+
+        .menu a:hover,
+        .menu a.active {
+            background: #197bd3;
+        }
+
+        .menu-icon {
+            width: 18px;
+            text-align: center;
+        }
+
+        .badge {
+            margin-left: auto;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #ff3b3b;
+            color: white;
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logout {
+            margin-top: auto;
+            border-top: 1px solid rgba(255,255,255,.15);
+            padding: 20px 14px;
+        }
+
+        .logout a {
+            color: white;
+            text-decoration: none;
+            padding: 0 18px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            font-size: 14px;
+        }
+
+        /* MAIN */
+        .main {
+            margin-left: 245px;
+            width: calc(100% - 245px);
+            min-height: 100vh;
+        }
+
+        .topbar {
+            height: 80px;
+            background: white;
+            border-bottom: 1px solid #dce4ee;
+            padding: 0 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .topbar h1 {
+            margin: 0;
+            font-size: 25px;
+            color: #0b407d;
+        }
+
+        .topbar p {
+            margin: 5px 0 0;
+            font-size: 12px;
+            color: #71829a;
+        }
+
+        .profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .bell {
+            font-size: 22px;
+            position: relative;
+        }
+
+        .profile-icon {
+            width: 38px;
+            height: 38px;
+            background: #edf2fa;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .profile-name strong {
+            display: block;
+            font-size: 13px;
+            color: #123b6d;
+        }
+
+        .profile-name small {
+            font-size: 11px;
+            color: #71829a;
+        }
+
+        /* CONTENT */
+        .content {
+            padding: 30px;
+        }
+
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            color: #1268b5;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 18px;
+        }
+
+        .detail-card {
+            background: white;
+            border: 1px solid #dce4ee;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .detail-header {
+            padding: 20px;
+            border-bottom: 1px solid #e5ebf2;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .detail-header h2 {
+            margin: 0;
+            font-size: 18px;
+            color: #123b6d;
+        }
+
+        .status {
+            padding: 7px 14px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            background: #dceeff;
+            color: #1170c1;
+        }
+
+        .detail-body {
+            padding: 25px;
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px 35px;
+        }
+
+        .field label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: #64748b;
+            margin-bottom: 7px;
+        }
+
+        .field-value {
+            min-height: 40px;
+            padding: 11px 13px;
+            background: #f8fafc;
+            border: 1px solid #e1e8f0;
+            border-radius: 6px;
+            font-size: 13px;
+            color: #243b53;
+        }
+
+        .full {
+            grid-column: 1 / -1;
+        }
+
+        .detail-footer {
+            padding: 18px 25px;
+            border-top: 1px solid #e5ebf2;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .btn-back {
+            border: none;
+            background: #e9f0f7;
+            color: #24476b;
+            padding: 10px 20px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        @@media (max-width: 800px) {
+            .sidebar {
+                width: 200px;
+            }
+
+            .main {
+                margin-left: 200px;
+                width: calc(100% - 200px);
+            }
+
+            .detail-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .full {
+                grid-column: auto;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="detail-page">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+
+        <div class="sidebar-brand">
+            <div class="brand-logo">✦</div>
+
+            <div class="brand-text">
+                <strong>BTSB</strong>
+                <small>Buku Tamu Digital</small>
+            </div>
+        </div>
+
+        <div class="menu-title">
+            MENU UTAMA
+        </div>
+
+        <nav class="menu">
+
+            <a href="/Dashboard">
+                <span class="menu-icon">⌂</span>
+                <span>Dashboard</span>
+            </a>
+
+            <a href="/DataKunjungan" class="active">
+                <span class="menu-icon">▣</span>
+                <span>Data Kunjungan</span>
+            </a>
+
+            <a href="/Notifikasi">
+                <span class="menu-icon">♧</span>
+                <span>Notifikasi</span>
+                <span class="badge">3</span>
+            </a>
+
+            <a href="/Laporan">
+                <span class="menu-icon">▤</span>
+                <span>Laporan</span>
+            </a>
+
+            <a href="/Pengguna">
+                <span class="menu-icon">♙</span>
+                <span>Pengguna</span>
+            </a>
+
+            <a href="/Pengaturan">
+                <span class="menu-icon">⚙</span>
+                <span>Pengaturan</span>
+            </a>
+
+        </nav>
+
+        <div class="logout">
+            <a href="/Index">
+                <span>↪</span>
+                <span>Keluar</span>
+            </a>
+        </div>
+
+    </aside>
+
+
+    <!-- MAIN -->
+    <main class="main">
+
+        <header class="topbar">
+
+            <div>
+                <h1>Detail Kunjungan</h1>
+                <p>Informasi lengkap data kunjungan tamu Balai Teknik Sains Bangunan</p>
+            </div>
+
+            <div class="profile">
+
+                <div class="bell">
+                    🔔
+                </div>
+
+                <div class="profile-icon">
+                    👤
+                </div>
+
+                <div class="profile-name">
+                    <strong>Admin</strong>
+                    <small>Petugas</small>
+                </div>
+
+            </div>
+
+        </header>
+
+
+        <section class="content">
+
+
+            @if (Model.Kunjungan != null)
+            {
+                <div class="detail-card">
+
+                    <div class="detail-header">
+
+                        <h2>Detail Kunjungan</h2>
+
+                        <span class="status">
+                            @Model.Kunjungan.Status
+                        </span>
+
+                    </div>
+
+
+                    <div class="detail-body">
+
+                        <div class="detail-grid">
+
+                            <div class="field">
+                                <label>Nama Lengkap</label>
+                                <div class="field-value">
+                                    @Model.Kunjungan.Nama
+                                </div>
+                            </div>
+
+
+                            <div class="field">
+                                <label>Instansi / Asal</label>
+                                <div class="field-value">
+                                    @Model.Kunjungan.Instansi
+                                </div>
+                            </div>
+
+
+                            <div class="field">
+                                <label>Nomor Telepon</label>
+                                <div class="field-value">
+                                    @Model.Kunjungan.Telepon
+                                </div>
+                            </div>
+
+
+                            <div class="field">
+                                <label>Email</label>
+                                <div class="field-value">
+                                    @Model.Kunjungan.Email
+                                </div>
+                            </div>
+
+
+                            <div class="field full">
+                                <label>Alamat</label>
+                                <div class="field-value">
+                                    @Model.Kunjungan.Alamat
+                                </div>
+                            </div>
+
+
+                            <div class="field">
+                                <label>Keperluan</label>
+                                <div class="field-value">
+                                    @Model.Kunjungan.Keperluan
+                                </div>
+                            </div>
+
+
+                            <div class="field">
+                                <label>Detail Keperluan</label>
+                                <div class="field-value">
+                                    @Model.Kunjungan.DetailKeperluan
+                                </div>
+                            </div>
+
+
+                            <div class="field">
+                                <label>Waktu Datang</label>
+                                <div class="field-value">
+                                    @Model.Kunjungan.WaktuDatang
+                                </div>
+                            </div>
+
+
+                            <div class="field">
+                              <label>Waktu Selesai</label>
+                              <div class="field-value">
+                                 @if (Model.Kunjungan.WaktuSelesai.HasValue)
+                                  {
+                                   @Model.Kunjungan.WaktuSelesai.Value.ToString("dd/MM/yyyy HH:mm")
+                                  }
+                                    else
+                                  {
+                                  <span>-</span>
+                                  }
+                              </div>
+                             </div>
+
+
+                            <div class="field">
+                                <label>Durasi</label>
+                                <div class="field-value">
+                                    @if (Model.Kunjungan.Durasi.HasValue)
+                                    {
+                                        @($"{Model.Kunjungan.Durasi.Value} menit")
+                                    }
+                                    else
+                                    {
+                                        <span>-</span>
+                                    }
+                                </div>
+                            </div>
+
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="detail-footer">
+
+                        <a href="/DataKunjungan" class="btn-back">
+                            Kembali
+                        </a>
+
+                    </div>
+
+                </div>
+            }
+            else
+            {
+                <div class="detail-card">
+                    <div class="detail-body">
+                        <p>Data kunjungan tidak ditemukan.</p>
+                    </div>
+                </div>
+            }
+
+        </section>
+
+    </main>
+
+</div>
+
+</body>
+</html>

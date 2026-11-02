@@ -1,0 +1,171 @@
+﻿<!DOCTYPE html>
+<html lang="id">
+
+<head>
+
+    <meta charset="utf-8" />
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0" />
+
+    <title>
+        @ViewData["Title"] - Buku Tamu BTSB
+    </title>
+
+    <link rel="stylesheet"
+          href="~/css/site.css"
+          asp-append-version="true" />
+
+</head>
+
+
+<body>
+
+    <!-- =====================================================
+         NAVBAR
+    ====================================================== -->
+
+    <header class="main-navbar">
+
+        <nav>
+
+            <div class="navbar-container">
+
+
+                <!-- =================================================
+                     IDENTITAS BTSB
+                     Dibuat DIV agar tidak dapat diklik
+                ================================================== -->
+
+                <div class="brand">
+
+                    <div class="brand-logo">
+
+                        <img src="~/images/pu.jpg"/>
+
+                    </div>
+
+
+                    <div class="brand-text">
+
+                        <strong>
+                            Balai Teknik
+                            Sains Bangunan
+                        </strong>
+
+                        <span>
+                            Direktorat Jenderal Cipta Karya
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =================================================
+                     MENU DESKTOP
+                ================================================== -->
+
+                <div class="navbar-menu">
+
+                    <a asp-page="/Index"
+                       class="nav-link">
+
+                        Beranda
+
+                    </a>
+
+                    <a asp-page="/Login"
+                       class="nav-button">
+
+                        Masuk
+
+                    </a>
+
+                </div>
+
+
+                <!-- =================================================
+                     TOMBOL MOBILE
+                ================================================== -->
+
+                <button class="mobile-menu-button"
+                        type="button"
+                        onclick="toggleMenu()"
+                        aria-label="Buka menu">
+
+                    ☰
+
+                </button>
+
+
+            </div>
+
+        </nav>
+
+    </header>
+
+
+
+    <!-- =====================================================
+         MAIN CONTENT
+    ====================================================== -->
+
+    <main>
+
+        @RenderBody()
+
+    </main>
+
+
+
+    <!-- =====================================================
+         FOOTER
+    ====================================================== -->
+
+    <footer class="main-footer">
+
+        <div class="footer-container">
+
+            <div class="footer-bottom">
+
+                <p>
+                    © @DateTime.Now.Year
+                    Balai Teknik Sains Bangunan.
+                    Seluruh hak cipta dilindungi.
+                </p>
+
+            </div>
+
+        </div>
+
+    </footer>
+
+
+
+    <!-- =====================================================
+         JAVASCRIPT
+    ====================================================== -->
+
+    <script>
+
+        function toggleMenu() {
+
+            const menu =
+                document.querySelector(".navbar-menu");
+
+            menu.classList.toggle("show");
+
+        }
+
+    </script>
+
+
+    @await RenderSectionAsync(
+        "Scripts",
+        required: false
+    )
+
+</body>
+
+</html>
