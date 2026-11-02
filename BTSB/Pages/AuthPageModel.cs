@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace BTSB.Pages
@@ -38,6 +38,33 @@ namespace BTSB.Pages
         {
             return HttpContext.Session
                 .GetString("Nama");
+        }
+
+        protected bool IsAdmin()
+        {
+            return string.Equals(
+                CurrentRole(),
+                "Admin",
+                StringComparison.OrdinalIgnoreCase
+            );
+        }
+
+        protected IActionResult? RequireAdmin()
+        {
+            if (!IsLoggedIn())
+            {
+                return RedirectToPage("/Login");
+            }
+
+            if (!IsAdmin())
+            {
+                TempData["Error"] =
+                    "Anda tidak memiliki hak akses untuk halaman tersebut.";
+
+                return RedirectToPage("/Dashboard");
+            }
+
+            return null;
         }
     }
 }

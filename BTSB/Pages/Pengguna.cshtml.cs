@@ -31,22 +31,17 @@ namespace BTSB.Pages
 
         public async Task<IActionResult> OnGetAsync()
         {
-            if (!IsLoggedIn())
-            {
-                return RedirectToPage("/Login");
-            }
+            var accessDenied = RequireAdmin();
+            if (accessDenied != null) return accessDenied;
 
             await LoadDataAsync();
-
             return Page();
         }
 
         public async Task<IActionResult> OnPostTambahAsync()
         {
-            if (!IsLoggedIn())
-            {
-                return RedirectToPage("/Login");
-            }
+            var accessDenied = RequireAdmin();
+            if (accessDenied != null) return accessDenied;
 
             if (string.IsNullOrWhiteSpace(Input.Nama) ||
                 string.IsNullOrWhiteSpace(Input.Username) ||
@@ -96,16 +91,13 @@ namespace BTSB.Pages
             await _context.SaveChangesAsync();
 
             TempData["Success"] = "Pengguna berhasil ditambahkan.";
-
             return RedirectToPage();
         }
 
         public async Task<IActionResult> OnPostEditAsync()
         {
-            if (!IsLoggedIn())
-            {
-                return RedirectToPage("/Login");
-            }
+            var accessDenied = RequireAdmin();
+            if (accessDenied != null) return accessDenied;
 
             var user = await _context.Users.FindAsync(EditId);
 
@@ -163,16 +155,13 @@ namespace BTSB.Pages
             await _context.SaveChangesAsync();
 
             TempData["Success"] = "Data pengguna berhasil diperbarui.";
-
             return RedirectToPage();
         }
 
         public async Task<IActionResult> OnPostToggleStatusAsync(int id)
         {
-            if (!IsLoggedIn())
-            {
-                return RedirectToPage("/Login");
-            }
+            var accessDenied = RequireAdmin();
+            if (accessDenied != null) return accessDenied;
 
             var user = await _context.Users.FindAsync(id);
 
@@ -183,7 +172,6 @@ namespace BTSB.Pages
             }
 
             user.Status = !user.Status;
-
             await _context.SaveChangesAsync();
 
             TempData["Success"] = user.Status
@@ -195,10 +183,8 @@ namespace BTSB.Pages
 
         public async Task<IActionResult> OnPostHapusAsync(int id)
         {
-            if (!IsLoggedIn())
-            {
-                return RedirectToPage("/Login");
-            }
+            var accessDenied = RequireAdmin();
+            if (accessDenied != null) return accessDenied;
 
             var user = await _context.Users.FindAsync(id);
 
@@ -209,11 +195,9 @@ namespace BTSB.Pages
             }
 
             _context.Users.Remove(user);
-
             await _context.SaveChangesAsync();
 
             TempData["Success"] = "Pengguna berhasil dihapus.";
-
             return RedirectToPage();
         }
 
@@ -240,23 +224,17 @@ namespace BTSB.Pages
         private static string HashPassword(string password)
         {
             using var sha256 = SHA256.Create();
-
             var bytes = Encoding.UTF8.GetBytes(password);
             var hash = sha256.ComputeHash(bytes);
-
             return Convert.ToBase64String(hash);
         }
 
         public class UserInput
         {
             public string Nama { get; set; } = string.Empty;
-
             public string Username { get; set; } = string.Empty;
-
             public string Email { get; set; } = string.Empty;
-
             public string Password { get; set; } = string.Empty;
-
             public string Role { get; set; } = "Petugas";
         }
     }

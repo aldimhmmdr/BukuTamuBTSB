@@ -982,62 +982,65 @@
                 </a>
 
 
-                <!-- PENGGUNA -->
+                @if (string.Equals(roleUser, "Admin", StringComparison.OrdinalIgnoreCase))
+                {
+                    <!-- PENGGUNA -->
 
-                <a href="/Pengguna"
-                   class="admin-menu-item @(currentPage == "/Pengguna" ? "active" : "")">
+                    <a href="/Pengguna"
+                       class="admin-menu-item @(currentPage == "/Pengguna" ? "active" : "")">
 
-                    <span class="admin-menu-icon">
+                        <span class="admin-menu-icon">
 
-                        <svg viewBox="0 0 24 24"
-                             aria-hidden="true">
+                            <svg viewBox="0 0 24 24"
+                                 aria-hidden="true">
 
-                            <circle cx="9"
-                                    cy="8"
-                                    r="3" />
+                                <circle cx="9"
+                                        cy="8"
+                                        r="3" />
 
-                            <path d="M3 20c.5-3.5 2.5-5 6-5s5.5 1.5 6 5" />
+                                <path d="M3 20c.5-3.5 2.5-5 6-5s5.5 1.5 6 5" />
 
-                            <path d="M16 5.5a3 3 0 0 1 0 5" />
+                                <path d="M16 5.5a3 3 0 0 1 0 5" />
 
-                            <path d="M17 15c2.5.5 3.5 2 4 5" />
+                                <path d="M17 15c2.5.5 3.5 2 4 5" />
 
-                        </svg>
+                            </svg>
 
-                    </span>
+                        </span>
 
-                    <span class="admin-menu-label">
-                        Pengguna
-                    </span>
+                        <span class="admin-menu-label">
+                            Pengguna
+                        </span>
 
-                </a>
+                    </a>
 
 
-                <!-- PENGATURAN -->
+                    <!-- PENGATURAN -->
 
-                <a href="/Pengaturan"
-                   class="admin-menu-item @(currentPage == "/Pengaturan" ? "active" : "")">
+                    <a href="/Pengaturan"
+                       class="admin-menu-item @(currentPage == "/Pengaturan" ? "active" : "")">
 
-                    <span class="admin-menu-icon">
+                        <span class="admin-menu-icon">
 
-                        <svg viewBox="0 0 24 24"
-                             aria-hidden="true">
+                            <svg viewBox="0 0 24 24"
+                                 aria-hidden="true">
 
-                            <circle cx="12"
-                                    cy="12"
-                                    r="3" />
+                                <circle cx="12"
+                                        cy="12"
+                                        r="3" />
 
-                            <path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-1.8 1.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V20h-2.6v-.1a1.7 1.7 0 0 0-1-1.5 1.7 1.7 0 0 0-1.9.3l-.1.1-1.8-1.8.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H6v-2.6h.1a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1L9 6.6l.1.1a1.7 1.7 0 0 0 1.9.3 1.7 1.7 0 0 0 1-1.5V5h2.6v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1 1.8 1.8-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.5 1h.1v2.6h-.1a1.7 1.7 0 0 0-1.5 1z" />
+                                <path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-1.8 1.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V20h-2.6v-.1a1.7 1.7 0 0 0-1-1.5 1.7 1.7 0 0 0-1.9.3l-.1.1-1.8-1.8.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H6v-2.6h.1a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1L9 6.6l.1.1a1.7 1.7 0 0 0 1.9.3 1.7 1.7 0 0 0 1-1.5V5h2.6v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1 1.8 1.8-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.5 1h.1v2.6h-.1a1.7 1.7 0 0 0-1.5 1z" />
 
-                        </svg>
+                            </svg>
 
-                    </span>
+                        </span>
 
-                    <span class="admin-menu-label">
-                        Pengaturan Akun
-                    </span>
+                        <span class="admin-menu-label">
+                            Pengaturan Akun
+                        </span>
 
-                </a>
+                    </a>                }
+
 
             </nav>
 

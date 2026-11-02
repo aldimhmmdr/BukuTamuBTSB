@@ -215,3 +215,5 @@ C:\Users\AldiM\source\repos\BTSB\BTSB\obj\Debug\net10.0\compressed\fwfkd5s34h-{0
 C:\Users\AldiM\source\repos\BTSB\BTSB\obj\Debug\net10.0\compressed\xlwvx5x8cq-{0}-fy4mukfiko-fy4mukfiko.gz
 C:\Users\AldiM\source\repos\BTSB\BTSB\obj\Debug\net10.0\compressed\288vjjui5i-{0}-vaj1hp5x43-vaj1hp5x43.gz
 C:\Users\AldiM\source\repos\BTSB\BTSB\obj\Debug\net10.0\compressed\3gpl4bquf6-{0}-pq3893uo2a-pq3893uo2a.gz
+C:\Users\AldiM\source\repos\BTSB\BTSB\bin\Debug\net10.0\appsettings.Email.example.json
+C:\Users\AldiM\source\repos\BTSB\BTSB\obj\Debug\net10.0\BTSB.sourcelink.json

@@ -3,6 +3,7 @@ using BTSB.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
+using System.Net.Mail;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -17,152 +18,105 @@ namespace BTSB.Pages
             _context = context;
         }
 
-
         [BindProperty]
         public string Username { get; set; } = string.Empty;
-
 
         [BindProperty]
         public string Password { get; set; } = string.Empty;
 
-
         public IActionResult OnGet()
         {
-            // Jika sudah login,
-            // jangan tampilkan halaman login lagi.
-
-            var userId = HttpContext.Session.GetInt32("UserId");
-
-            if (userId.HasValue)
-            {
+            if (HttpContext.Session.GetInt32("UserId").HasValue)
                 return RedirectToPage("/Dashboard");
-            }
 
             return Page();
         }
 
-
         public async Task<IActionResult> OnPostAsync()
         {
-            // ==========================================
-            // VALIDASI INPUT
-            // ==========================================
-
             if (string.IsNullOrWhiteSpace(Username) ||
                 string.IsNullOrWhiteSpace(Password))
             {
-                ModelState.AddModelError(
-                    "",
-                    "Username dan password wajib diisi.");
-
+                ModelState.AddModelError("", "Username dan password wajib diisi.");
                 return Page();
             }
 
-
-            // ==========================================
-            // HASH PASSWORD
-            // ==========================================
-
-            string passwordHash =
-                HashPassword(Password);
-
-
-            // ==========================================
-            // CARI USER DI DATABASE
-            // ==========================================
-
-            var user = await _context.Users
-                .FirstOrDefaultAsync(x =>
-                    x.Username.ToLower() ==
-                    Username.Trim().ToLower());
-
-
-            // ==========================================
-            // USER TIDAK DITEMUKAN
-            // ==========================================
+            var user = await _context.Users.FirstOrDefaultAsync(x =>
+                x.Username.ToLower() == Username.Trim().ToLower());
 
             if (user == null)
             {
-                ModelState.AddModelError(
-                    "",
-                    "Username atau password salah.");
-
+                ModelState.AddModelError("", "Username atau password salah.");
                 return Page();
             }
-
-
-            // ==========================================
-            // CEK STATUS USER
-            // ==========================================
 
             if (!user.Status)
             {
-                ModelState.AddModelError(
-                    "",
-                    "Akun Anda sedang dinonaktifkan.");
-
+                ModelState.AddModelError("", "Akun Anda sedang dinonaktifkan.");
                 return Page();
             }
 
-
-            // ==========================================
-            // CEK PASSWORD
-            // ==========================================
-
-            if (user.PasswordHash != passwordHash)
+            if (user.PasswordHash != HashPassword(Password))
             {
-                ModelState.AddModelError(
-                    "",
-                    "Username atau password salah.");
-
+                ModelState.AddModelError("", "Username atau password salah.");
                 return Page();
             }
 
+            // Hapus status login/OTP sebelumnya sebelum membuat OTP baru.
+            ClearOtpSession();
+            HttpContext.Session.Remove("UserId");
+            HttpContext.Session.Remove("Username");
+            HttpContext.Session.Remove("Nama");
+            HttpContext.Session.Remove("Role");
 
-            // ==========================================
-            // LOGIN BERHASIL
-            // ==========================================
+            var otp = RandomNumberGenerator.GetInt32(100000, 1000000).ToString();
+            var now = DateTimeOffset.UtcNow;
 
-            HttpContext.Session.SetInt32(
-                "UserId",
-                user.Id);
+            HttpContext.Session.SetInt32("OtpPendingUserId", user.Id);
+            HttpContext.Session.SetString("OtpHash", HashOtp(otp));
+            HttpContext.Session.SetString("OtpExpiresAt", now.AddMinutes(5).ToString("O"));
+            HttpContext.Session.SetInt32("OtpAttempts", 0);
+            HttpContext.Session.SetString("OtpLastSentAt", now.ToString("O"));
 
-            HttpContext.Session.SetString(
-                "Username",
-                user.Username);
+            // MODE PENGEMBANGAN LOKAL:
+            // OTP ditampilkan pada terminal/CMD tempat aplikasi dijalankan.
+            Console.WriteLine();
+            Console.WriteLine("==================================================");
+            Console.WriteLine("             VERIFIKASI OTP BTSB");
+            Console.WriteLine("==================================================");
+            Console.WriteLine($"Waktu       : {DateTime.Now:dd-MM-yyyy HH:mm:ss}");
+            Console.WriteLine($"Nama        : {user.Nama}");
+            Console.WriteLine($"Username    : {user.Username}");
+            Console.WriteLine($"Email akun  : {user.Email}");
+            Console.WriteLine($"KODE OTP    : {otp}");
+            Console.WriteLine("Berlaku     : 5 menit");
+            Console.WriteLine("==================================================");
+            Console.WriteLine();
 
-            HttpContext.Session.SetString(
-                "Nama",
-                user.Nama);
-
-            HttpContext.Session.SetString(
-                "Role",
-                user.Role);
-
-
-            // ==========================================
-            // REDIRECT
-            // ==========================================
-
-            return RedirectToPage("/Dashboard");
+            return RedirectToPage("/VerifikasiOtp");
         }
 
-
-        // ==========================================
-        // HASH PASSWORD
-        // ==========================================
+        private void ClearOtpSession()
+        {
+            HttpContext.Session.Remove("OtpPendingUserId");
+            HttpContext.Session.Remove("OtpHash");
+            HttpContext.Session.Remove("OtpExpiresAt");
+            HttpContext.Session.Remove("OtpAttempts");
+            HttpContext.Session.Remove("OtpLastSentAt");
+        }
 
         private static string HashPassword(string password)
         {
             using var sha256 = SHA256.Create();
+            return Convert.ToBase64String(
+                sha256.ComputeHash(Encoding.UTF8.GetBytes(password)));
+        }
 
-            var bytes =
-                Encoding.UTF8.GetBytes(password);
-
-            var hash =
-                sha256.ComputeHash(bytes);
-
-            return Convert.ToBase64String(hash);
+        private static string HashOtp(string otp)
+        {
+            using var sha256 = SHA256.Create();
+            return Convert.ToBase64String(
+                sha256.ComputeHash(Encoding.UTF8.GetBytes(otp)));
         }
     }
 }

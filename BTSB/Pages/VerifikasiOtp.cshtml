@@ -1,0 +1,60 @@
+@page
+@model BTSB.Pages.VerifikasiOtpModel
+
+@{
+    ViewData["Title"] = "Verifikasi OTP";
+}
+
+<div class="login-page">
+    <div class="login-overlay"></div>
+    <div class="login-container">
+        <div class="login-card">
+            <div class="login-logo">
+                <img src="~/images/pu.jpg" alt="Logo BTSB">
+            </div>
+
+            <h1>Verifikasi OTP</h1>
+            <p class="login-subtitle">
+                Masukkan kode verifikasi yang ditampilkan pada
+                <br>
+                <strong>Command Prompt (CMD)</strong>
+            </p>
+
+            @if (TempData["OtpInfo"] != null)
+            {
+                <div style="color:#16834a;margin-bottom:12px">@TempData["OtpInfo"]</div>
+            }
+
+            <div asp-validation-summary="ModelOnly" class="text-danger" style="margin-bottom:12px"></div>
+
+            <form method="post">
+                <div class="form-group">
+                    <label asp-for="KodeOtp">Kode OTP (6 digit)</label>
+                    <input asp-for="KodeOtp"
+                           type="text"
+                           inputmode="numeric"
+                           autocomplete="one-time-code"
+                           maxlength="6"
+                           pattern="[0-9]{6}"
+                           placeholder="Masukkan 6 digit OTP"
+                           required />
+                    <span asp-validation-for="KodeOtp"></span>
+                </div>
+
+                <button type="submit" class="login-button">Verifikasi</button>
+            </form>
+
+            <form method="post" asp-page-handler="KirimUlang" style="margin-top:12px">
+                <button type="submit"
+                        class="login-button"
+                        style="background:#eef2f8;color:#203368">
+                    Kirim Ulang OTP
+                </button>
+            </form>
+
+            <p style="margin-top:16px;font-size:13px">
+                <a asp-page="/Login">Kembali ke halaman login</a>
+            </p>
+        </div>
+    </div>
+</div>

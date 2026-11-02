@@ -17,268 +17,128 @@ namespace BTSB.Pages
             _context = context;
         }
 
-
-        // ==========================================
-        // DATA USER
-        // ==========================================
-
         public User? CurrentUser { get; set; }
-
-
-        // ==========================================
-        // PROFIL
-        // ==========================================
 
         [BindProperty]
         public string Nama { get; set; } = string.Empty;
 
-
-        // ==========================================
-        // PASSWORD
-        // ==========================================
+        [BindProperty]
+        public string PasswordSaatIni { get; set; } = string.Empty;
 
         [BindProperty]
-        public string PasswordSaatIni { get; set; }
-            = string.Empty;
-
+        public string PasswordBaru { get; set; } = string.Empty;
 
         [BindProperty]
-        public string PasswordBaru { get; set; }
-            = string.Empty;
-
-
-        [BindProperty]
-        public string KonfirmasiPassword { get; set; }
-            = string.Empty;
-
-
-        // ==========================================
-        // GET
-        // ==========================================
+        public string KonfirmasiPassword { get; set; } = string.Empty;
 
         public async Task<IActionResult> OnGetAsync()
         {
-            var userId =
-                HttpContext.Session.GetInt32("UserId");
+            var accessDenied = RequireAdmin();
+            if (accessDenied != null) return accessDenied;
 
+            var userId = HttpContext.Session.GetInt32("UserId");
 
-            if (userId == null)
-            {
-                return RedirectToPage("/Login");
-            }
-
-
-            CurrentUser =
-                await _context.Users
-                    .AsNoTracking()
-                    .FirstOrDefaultAsync(
-                        x => x.Id == userId.Value
-                    );
-
+            CurrentUser = await _context.Users
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == userId!.Value);
 
             if (CurrentUser == null)
             {
                 HttpContext.Session.Clear();
-
                 return RedirectToPage("/Login");
             }
 
-
             Nama = CurrentUser.Nama;
-
-
             return Page();
         }
 
-
-        // ==========================================
-        // SIMPAN PROFIL
-        // ==========================================
-
-        public async Task<IActionResult>
-            OnPostSimpanProfilAsync()
+        public async Task<IActionResult> OnPostSimpanProfilAsync()
         {
-            var userId =
-                HttpContext.Session.GetInt32("UserId");
+            var accessDenied = RequireAdmin();
+            if (accessDenied != null) return accessDenied;
 
-
-            if (userId == null)
-            {
-                return RedirectToPage("/Login");
-            }
-
+            var userId = HttpContext.Session.GetInt32("UserId");
 
             if (string.IsNullOrWhiteSpace(Nama))
             {
-                TempData["Error"] =
-                    "Nama wajib diisi.";
-
+                TempData["Error"] = "Nama wajib diisi.";
                 return RedirectToPage();
             }
 
-
-            var user =
-                await _context.Users
-                    .FirstOrDefaultAsync(
-                        x => x.Id == userId.Value
-                    );
-
+            var user = await _context.Users
+                .FirstOrDefaultAsync(x => x.Id == userId!.Value);
 
             if (user == null)
             {
                 HttpContext.Session.Clear();
-
                 return RedirectToPage("/Login");
             }
 
-
-            user.Nama =
-                Nama.Trim();
-
-
+            user.Nama = Nama.Trim();
             await _context.SaveChangesAsync();
 
+            HttpContext.Session.SetString("Nama", user.Nama);
 
-            // Update session
-
-            HttpContext.Session.SetString(
-                "Nama",
-                user.Nama
-            );
-
-
-            TempData["Success"] =
-                "Profil berhasil diperbarui.";
-
-
+            TempData["Success"] = "Profil berhasil diperbarui.";
             return RedirectToPage();
         }
 
-
-        // ==========================================
-        // UBAH PASSWORD
-        // ==========================================
-
-        public async Task<IActionResult>
-            OnPostUbahPasswordAsync()
+        public async Task<IActionResult> OnPostUbahPasswordAsync()
         {
-            var userId =
-                HttpContext.Session.GetInt32("UserId");
+            var accessDenied = RequireAdmin();
+            if (accessDenied != null) return accessDenied;
 
+            var userId = HttpContext.Session.GetInt32("UserId");
 
-            if (userId == null)
+            if (string.IsNullOrWhiteSpace(PasswordSaatIni) ||
+                string.IsNullOrWhiteSpace(PasswordBaru) ||
+                string.IsNullOrWhiteSpace(KonfirmasiPassword))
             {
-                return RedirectToPage("/Login");
-            }
-
-
-            if (string.IsNullOrWhiteSpace(
-                    PasswordSaatIni) ||
-                string.IsNullOrWhiteSpace(
-                    PasswordBaru) ||
-                string.IsNullOrWhiteSpace(
-                    KonfirmasiPassword))
-            {
-                TempData["PasswordError"] =
-                    "Semua kolom password wajib diisi.";
-
+                TempData["PasswordError"] = "Semua kolom password wajib diisi.";
                 return RedirectToPage();
             }
-
 
             if (PasswordBaru.Length < 6)
             {
-                TempData["PasswordError"] =
-                    "Password baru minimal 6 karakter.";
-
+                TempData["PasswordError"] = "Password baru minimal 6 karakter.";
                 return RedirectToPage();
             }
-
 
             if (PasswordBaru != KonfirmasiPassword)
             {
-                TempData["PasswordError"] =
-                    "Konfirmasi password tidak sesuai.";
-
+                TempData["PasswordError"] = "Konfirmasi password tidak sesuai.";
                 return RedirectToPage();
             }
 
-
-            var user =
-                await _context.Users
-                    .FirstOrDefaultAsync(
-                        x => x.Id == userId.Value
-                    );
-
+            var user = await _context.Users
+                .FirstOrDefaultAsync(x => x.Id == userId!.Value);
 
             if (user == null)
             {
                 HttpContext.Session.Clear();
-
                 return RedirectToPage("/Login");
             }
 
+            var passwordLamaHash = HashPassword(PasswordSaatIni);
 
-            // ======================================
-            // CEK PASSWORD LAMA
-            // ======================================
-
-            var passwordLamaHash =
-                HashPassword(
-                    PasswordSaatIni
-                );
-
-
-            if (user.PasswordHash !=
-                passwordLamaHash)
+            if (user.PasswordHash != passwordLamaHash)
             {
-                TempData["PasswordError"] =
-                    "Password saat ini tidak benar.";
-
+                TempData["PasswordError"] = "Password saat ini tidak benar.";
                 return RedirectToPage();
             }
 
-
-            // ======================================
-            // PASSWORD BARU
-            // ======================================
-
-            user.PasswordHash =
-                HashPassword(
-                    PasswordBaru
-                );
-
-
+            user.PasswordHash = HashPassword(PasswordBaru);
             await _context.SaveChangesAsync();
 
-
-            TempData["Success"] =
-                "Password berhasil diubah.";
-
-
+            TempData["Success"] = "Password berhasil diubah.";
             return RedirectToPage();
         }
 
-
-        // ==========================================
-        // HASH PASSWORD
-        // ==========================================
-
-        private static string HashPassword(
-            string password)
+        private static string HashPassword(string password)
         {
-            using var sha256 =
-                SHA256.Create();
-
-
-            var bytes =
-                Encoding.UTF8.GetBytes(password);
-
-
-            var hash =
-                sha256.ComputeHash(bytes);
-
-
+            using var sha256 = SHA256.Create();
+            var bytes = Encoding.UTF8.GetBytes(password);
+            var hash = sha256.ComputeHash(bytes);
             return Convert.ToBase64String(hash);
         }
     }
