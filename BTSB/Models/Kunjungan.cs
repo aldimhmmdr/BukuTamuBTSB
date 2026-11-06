@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace BTSB.Models
 {
@@ -27,5 +27,8 @@ namespace BTSB.Models
         public int? Durasi { get; set; }
 
         public string Status { get; set; } = "Menunggu";
+
+        // Menandai asal pencatatan: Online atau Historis Manual/Excel.
+        public string SumberData { get; set; } = "Online";
     }
 }

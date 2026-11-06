@@ -21,6 +21,9 @@ namespace BTSB.Pages
 
         public List<Kunjungan> Data { get; set; } = new();
 
+        // Digunakan hanya untuk mengatur tampilan tombol khusus Admin.
+        public bool IsAdminUser => IsAdmin();
+
         // =====================================================
         // NOTIFIKASI
         // =====================================================

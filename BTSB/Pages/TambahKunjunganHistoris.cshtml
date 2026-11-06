@@ -1,0 +1,32 @@
+@page
+@model BTSB.Pages.TambahKunjunganHistorisModel
+@{
+    ViewData["Title"] = "Tambah Kunjungan Historis";
+    ViewData["PageTitle"] = "Tambah Kunjungan Historis";
+    ViewData["PageDescription"] = "Mencatat kunjungan dari buku tamu sebelum sistem digital digunakan";
+    Layout = "_AdminLayout";
+}
+<style>
+.historis-wrap{max-width:1000px;margin:0 auto}.historis-card{background:#fff;border:1px solid #dce5ef;border-radius:12px;padding:24px;box-shadow:0 2px 7px rgba(20,50,80,.04)}
+.historis-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.historis-field label{display:block;font-size:12px;font-weight:700;color:#355574;margin-bottom:7px}.historis-field input,.historis-field select,.historis-field textarea{width:100%;border:1px solid #d4deea;border-radius:7px;padding:10px;color:#334d68;background:#fff}.historis-field textarea{min-height:90px;resize:vertical}.historis-field.full{grid-column:1/-1}.historis-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:22px}.historis-btn{display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:7px;padding:11px 17px;text-decoration:none;font-weight:700;font-size:13px;cursor:pointer}.historis-primary{background:#1178d1;color:#fff}.historis-light{background:#edf3f9;color:#315477}.historis-note{background:#eef6ff;border:1px solid #d5e8fb;color:#315477;padding:13px 15px;border-radius:8px;margin-bottom:18px;font-size:13px;line-height:1.6}.validation-summary-errors{color:#b42318;margin-bottom:15px}.field-validation-error{color:#b42318;font-size:12px}@@media(max-width:700px){.historis-grid{grid-template-columns:1fr}.historis-field.full{grid-column:auto}}
+</style>
+<div class="historis-wrap">
+ <div class="historis-card">
+  <div class="historis-note"><strong>Catatan:</strong> Isi berdasarkan buku tamu fisik. Tanggal dan jam yang dimasukkan adalah waktu kunjungan sebenarnya, bukan tanggal input ke aplikasi. Status disimpan sebagai Selesai. Jam selesai boleh dikosongkan jika tidak tercatat.</div>
+  <form method="post">
+   <div asp-validation-summary="ModelOnly"></div>
+   <div class="historis-grid">
+    <div class="historis-field"><label asp-for="Nama">Nama tamu *</label><input asp-for="Nama" required maxlength="150" /></div>
+    <div class="historis-field"><label asp-for="Instansi">Instansi / asal *</label><input asp-for="Instansi" required maxlength="200" /></div>
+    <div class="historis-field"><label asp-for="Telepon">Nomor telepon</label><input asp-for="Telepon" type="tel" maxlength="30" /></div>
+    <div class="historis-field"><label asp-for="Email">Email</label><input asp-for="Email" type="email" maxlength="200" /></div>
+    <div class="historis-field full"><label asp-for="Alamat">Alamat</label><textarea asp-for="Alamat"></textarea></div>
+    <div class="historis-field"><label asp-for="Keperluan">Keperluan *</label><select asp-for="Keperluan" required><option value="">-- Pilih keperluan --</option><option>Advis Teknis</option><option>Pengujian Termal</option><option>Pengujian Ketahanan Api</option><option>Pengujian Akustik</option><option>Bimbingan Teknis</option><option>Konsultasi</option><option>Lainnya</option></select></div>
+    <div class="historis-field"><label asp-for="DetailKeperluan">Detail keperluan</label><input asp-for="DetailKeperluan" maxlength="500" /></div>
+    <div class="historis-field"><label asp-for="WaktuDatang">Tanggal & jam datang *</label><input asp-for="WaktuDatang" type="datetime-local" required /></div>
+    <div class="historis-field"><label asp-for="WaktuSelesai">Tanggal & jam selesai</label><input asp-for="WaktuSelesai" type="datetime-local" /></div>
+   </div>
+   <div class="historis-actions"><a href="/DataKunjungan" class="historis-btn historis-light">Batal</a><button type="submit" class="historis-btn historis-primary">Simpan Data Historis</button></div>
+  </form>
+ </div>
+</div>

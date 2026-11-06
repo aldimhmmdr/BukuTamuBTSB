@@ -1,4 +1,4 @@
-﻿@page
+@page
 @model BTSB.Pages.DataKunjunganModel
 
 @{
@@ -358,6 +358,27 @@
 
 <div class="data-kunjungan-page">
 
+    @if (TempData["Success"] != null)
+    {
+        <div style="background:#e8f7ef;border:1px solid #b9e5cc;color:#176b43;padding:12px 16px;border-radius:8px;margin-bottom:16px;white-space:pre-line;">
+            @TempData["Success"]
+            @if (TempData["ImportErrors"] != null)
+            {
+                <div style="margin-top:8px;font-size:12px;">
+                    <strong>Catatan baris yang dilewati:</strong><br />
+                    @TempData["ImportErrors"]
+                </div>
+            }
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div style="background:#fff0f0;border:1px solid #f2c5c5;color:#a12626;padding:12px 16px;border-radius:8px;margin-bottom:16px;">
+            @TempData["Error"]
+        </div>
+    }
+
 
     <!-- =====================================================
          FILTER
@@ -532,6 +553,18 @@
                 Data Kunjungan
             </h2>
 
+            @if (Model.IsAdminUser)
+            {
+                <div class="table-actions">
+                    <a href="/TambahKunjunganHistoris" class="btn btn-primary">
+                        + Tambah Manual
+                    </a>
+                    <a href="/ImportKunjunganHistoris" class="btn btn-light">
+                        Import Excel
+                    </a>
+                </div>
+            }
+
         </div>
 
 
@@ -569,6 +602,10 @@
 
                             <th>
                                 Instansi / Asal
+                            </th>
+
+                            <th>
+                                Sumber Data
                             </th>
 
                             <th>
@@ -632,6 +669,19 @@
                                     @item.Instansi
                                 </td>
 
+
+                                <!-- SUMBER DATA -->
+
+                                <td>
+                                    @if (item.SumberData == "Historis Manual" || item.SumberData == "Historis Excel")
+                                    {
+                                        <span class="status status-dilayani">@item.SumberData</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="status status-default">Online</span>
+                                    }
+                                </td>
 
                                 <!-- KEPERLUAN -->
 

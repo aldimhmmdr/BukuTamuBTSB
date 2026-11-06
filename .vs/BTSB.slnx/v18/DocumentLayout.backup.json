@@ -1,12 +1,37 @@
 {
   "Version": 1,
   "WorkspaceRootPath": "C:\\Users\\AldiM\\source\\repos\\BTSB\\",
-  "Documents": [],
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{04DFB59F-C3C1-EFE1-9340-99C3DC85BCAE}|BTSB\\BTSB.csproj|c:\\users\\aldim\\source\\repos\\btsb\\btsb\\pages\\tambahkunjunganhistoris.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{04DFB59F-C3C1-EFE1-9340-99C3DC85BCAE}|BTSB\\BTSB.csproj|solutionrelative:btsb\\pages\\tambahkunjunganhistoris.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    }
+  ],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
       "VerticalTabListWidth": 256,
-      "DocumentGroups": []
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "TambahKunjunganHistoris.cshtml",
+              "DocumentMoniker": "C:\\Users\\AldiM\\source\\repos\\BTSB\\BTSB\\Pages\\TambahKunjunganHistoris.cshtml",
+              "RelativeDocumentMoniker": "BTSB\\Pages\\TambahKunjunganHistoris.cshtml",
+              "ToolTip": "C:\\Users\\AldiM\\source\\repos\\BTSB\\BTSB\\Pages\\TambahKunjunganHistoris.cshtml*",
+              "RelativeToolTip": "BTSB\\Pages\\TambahKunjunganHistoris.cshtml*",
+              "ViewState": "AgIAAAMAAAAAAAAAAAAkwAoAAAAsBAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-11-06T01:54:04.521Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
     }
   ]
 }

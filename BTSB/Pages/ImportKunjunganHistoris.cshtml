@@ -1,0 +1,27 @@
+@page
+@model BTSB.Pages.ImportKunjunganHistorisModel
+@{
+    ViewData["Title"] = "Import Kunjungan Historis";
+    ViewData["PageTitle"] = "Import Kunjungan Historis";
+    ViewData["PageDescription"] = "Masukkan rekap buku tamu fisik melalui file Excel";
+    Layout = "_AdminLayout";
+}
+<style>
+.import-wrap{max-width:950px;margin:0 auto}.import-card{background:#fff;border:1px solid #dce5ef;border-radius:12px;padding:24px;margin-bottom:18px;box-shadow:0 2px 7px rgba(20,50,80,.04)}.import-card h3{margin:0 0 12px;color:#123f76;font-size:17px}.import-note{background:#eef6ff;border:1px solid #d5e8fb;color:#315477;padding:14px;border-radius:8px;font-size:13px;line-height:1.7;margin-bottom:18px}.import-file{display:block;width:100%;padding:14px;border:1px dashed #a9bfd5;border-radius:8px;background:#f8fbfe}.import-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}.import-btn{display:inline-flex;align-items:center;justify-content:center;padding:11px 17px;border:0;border-radius:7px;text-decoration:none;font-weight:700;font-size:13px;cursor:pointer}.import-primary{background:#1178d1;color:#fff}.import-light{background:#edf3f9;color:#315477}.validation-summary-errors{color:#b42318;margin-bottom:15px}.import-small{font-size:12px;color:#718198;line-height:1.6}
+</style>
+<div class="import-wrap">
+ <div class="import-card">
+  <h3>1. Unduh template Excel</h3>
+  <p class="import-small">Gunakan template resmi agar nama kolom dan format tanggal sesuai dengan sistem BTSB.</p>
+  <a asp-page-handler="Template" class="import-btn import-light">⬇ Unduh Template Excel</a>
+ </div>
+ <div class="import-card">
+  <h3>2. Unggah data dari buku tamu</h3>
+  <div class="import-note"><strong>Petunjuk:</strong><br>• Isi satu baris untuk setiap kunjungan.<br>• Kolom wajib: Nama, Instansi, Keperluan, WaktuDatang.<br>• Format waktu: <strong>yyyy-MM-dd HH:mm</strong>, contoh <strong>2026-10-15 09:00</strong>.<br>• WaktuSelesai boleh dikosongkan jika tidak tersedia.<br>• Status otomatis disimpan sebagai <strong>Selesai</strong>.<br>• Maksimal 1.000 baris dan ukuran file 10 MB per proses.<br>• Data duplikat berdasarkan Nama, Instansi, dan WaktuDatang akan dilewati.</div>
+  <form method="post" enctype="multipart/form-data">
+   <div asp-validation-summary="ModelOnly"></div>
+   <input asp-for="FileExcel" type="file" accept=".xlsx" class="import-file" required />
+   <div class="import-actions"><a href="/DataKunjungan" class="import-btn import-light">Kembali</a><button type="submit" class="import-btn import-primary">Proses Import</button></div>
+  </form>
+ </div>
+</div>
